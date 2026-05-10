@@ -1,0 +1,113 @@
+package dashboard
+
+import (
+	"fmt"
+	"shopDashboard/app/db"
+)
+
+type ServersPageData struct {
+	Servers []db.Affiliate
+	Error   string
+}
+
+templ ServersList(data ServersPageData) {
+	<div class="flex flex-col gap-6">
+		<div>
+			<div class="eyebrow">Infrastructure</div>
+			<h1 class="text-2xl font-bold">Shop Servers</h1>
+			<p class="lead">Select a server to view its dashboard and commissions.</p>
+		</div>
+
+		if data.Error != "" {
+			<div class="card card-pad" style="border-color:rgba(230,115,115,.3);background:var(--destructive-soft);">
+				<p class="font-semibold" style="color:var(--destructive)">Error</p>
+				<p class="text-sm mt-1" style="color:var(--destructive)">{ data.Error }</p>
+			</div>
+		}
+
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+			for _, s := range data.Servers {
+				<div class="card card-pad" style="transition:all .15s">
+					<a href={ fmt.Sprintf("/affiliate/%d", s.ID) } style="display:block;text-decoration:none;color:inherit">
+						<div class="stat-row">
+							<div style="width:44px;height:44px;border-radius:10px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-weight:700;font-size:18px">{ s.Name[:1] }</div>
+							<span class="mono" style="font-size:11px;color:var(--muted)">{ s.AffiliateID }</span>
+						</div>
+						<div style="font-size:17px;font-weight:600;font-family:var(--font-display);margin-top:12px">{ s.Name }</div>
+						<div class="mono" style="font-size:12px;color:var(--muted);margin-top:4px">{ s.Email }</div>
+						<div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:12px;border-top:1px solid var(--border)">
+							<div hx-get={ fmt.Sprintf("/affiliate/%d/ping", s.ID) } hx-trigger="load, every 60s" hx-swap="innerHTML" style="display:flex;align-items:center;gap:6px">
+								@PingDisplay(s.ID, "checking", 0)
+							</div>
+							<span class="pill pill-ok">Active</span>
+						</div>
+					</a>
+				</div>
+			}
+		</div>
+
+		if len(data.Servers) == 0 && data.Error == "" {
+			<div style="text-align:center;padding:64px 0;color:var(--muted)">
+				<p style="font-size:20px;margin-bottom:8px">No servers found</p>
+				<p class="text-sm">No active shop servers in the database.</p>
+			</div>
+		}
+	</div>
+}
+
+templ PingDisplay(id int, status string, latencyMs int64) {
+	<div id={ fmt.Sprintf("ping-%d", id) } style="display:flex;align-items:center;gap:4px">
+		if status == "healthy" {
+			<span style="width:6px;height:6px;border-radius:50%;background:#22c55e;display:inline-block"></span>
+		} else if status == "checking" {
+			<span style="width:6px;height:6px;border-radius:50%;background:#6b7280;display:inline-block"></span>
+		} else {
+			<span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block"></span>
+		}
+		<span class="mono" style="font-size:10px">{ status }</span>
+		if latencyMs > 0 {
+			<span class="mono" style="font-size:9px;color:var(--muted)">{ fmt.Sprintf("%dms", latencyMs) }</span>
+		}
+	</div>
+}
+
+templ DashboardURLDisplay(id int, url string) {
+	<div x-data="{ editing: false }" style="display:flex;align-items:center;gap:6px">
+		<template x-if="!editing">
+			<div style="display:flex;align-items:center;gap:6px">
+				<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted)"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+				<span class="mono" style="font-size:11px;color:var(--muted)">Dashboard URL:</span>
+				<span class="mono" style="font-size:11px;color:var(--primary)">{ url }</span>
+				<button type="button" @click="editing = true" class="btn btn-ghost" style="font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Edit</button>
+			</div>
+		</template>
+		<template x-if="editing">
+			<form hx-put={ fmt.Sprintf("/affiliate/%d/dashboard-url", id) } hx-target="this" hx-swap="outerHTML" style="display:flex;align-items:center;gap:4px">
+				<input type="text" name="dashboard_url" value={ url } placeholder="https://dashboard.example.com" style="font-size:11px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--fg);font-family:var(--font-mono);min-width:180px" />
+				<button type="submit" style="font-size:10px;padding:4px 8px;border-radius:3px;border:none;background:var(--primary);color:var(--primary-fg);cursor:pointer">Save</button>
+				<button type="button" @click="editing = false" style="font-size:10px;padding:4px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Cancel</button>
+			</form>
+		</template>
+	</div>
+}
+
+templ DomainDisplay(id int, domain string) {
+	<div x-data="{ editing: false }" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+		<template x-if="!editing">
+			<div style="display:flex;align-items:center;gap:8px">
+				<span class="mono" style="font-size:12px;color:var(--muted)">{ domain }</span>
+				<button type="button" @click="editing = true" class="btn btn-ghost" style="font-size:11px;display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">
+					<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+					Edit
+				</button>
+			</div>
+		</template>
+		<template x-if="editing">
+			<form hx-put={ fmt.Sprintf("/affiliate/%d/domain", id) } hx-target="this" hx-swap="outerHTML" style="display:flex;align-items:center;gap:6px">
+				<input type="text" name="domain" value={ domain } placeholder="https://example.com" style="flex:1;font-size:12px;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:var(--font-mono);min-width:200px" />
+				<button type="submit" style="font-size:11px;padding:6px 12px;border-radius:4px;border:none;background:var(--primary);color:var(--primary-fg);cursor:pointer">Save</button>
+				<button type="button" @click="editing = false" style="font-size:11px;padding:6px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Cancel</button>
+			</form>
+		</template>
+	</div>
+}

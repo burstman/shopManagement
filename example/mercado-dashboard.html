@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mercado · Shop Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1c2230; --fg:#eef2f7; --card:#252c3c; --muted:#8a93a6;
+    --border:#333b4f; --secondary:#2c3445; --input:#2a3142;
+    --primary:#5fd4a4; --primary-fg:#0e2a1f; --primary-soft:rgba(95,212,164,.12);
+    --accent:#e8c065; --warning:#e8c065; --warning-soft:rgba(232,192,101,.12);
+    --destructive:#e67373; --destructive-soft:rgba(230,115,115,.12);
+    --sidebar:#161b27; --radius:12px;
+    --font-display:"Space Grotesk",system-ui,sans-serif;
+    --font-mono:"JetBrains Mono",ui-monospace,monospace;
+    --font-sans:"Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:var(--font-sans);background:var(--bg);color:var(--fg);
+    background-image:
+      radial-gradient(circle at 15% 0%,rgba(95,212,164,.08),transparent 40%),
+      radial-gradient(circle at 85% 100%,rgba(120,160,230,.06),transparent 40%);
+    background-attachment:fixed;
+  }
+  h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:-.02em;font-weight:700}
+  .mono,code{font-family:var(--font-mono)}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  a{color:inherit;text-decoration:none}
+  input{font:inherit;color:inherit}
+
+  /* Layout */
+  .app{display:flex;min-height:100vh}
+  aside{
+    width:256px;flex-shrink:0;background:var(--sidebar);
+    border-right:1px solid var(--border);display:flex;flex-direction:column
+  }
+  .brand{padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+  .brand-icon{
+    width:40px;height:40px;border-radius:12px;background:var(--primary);color:var(--primary-fg);
+    display:grid;place-items:center;box-shadow:0 6px 20px rgba(95,212,164,.25);font-weight:700
+  }
+  .brand-name{font-family:var(--font-display);font-weight:700;font-size:15px}
+  .brand-sub{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  nav{flex:1;padding:12px}
+  nav button{
+    width:100%;display:flex;align-items:center;gap:12px;padding:10px 12px;
+    border-radius:8px;color:var(--muted);font-size:14px;transition:.15s
+  }
+  nav button:hover{background:rgba(255,255,255,.04);color:var(--fg)}
+  nav button.active{
+    background:rgba(255,255,255,.06);color:var(--fg);font-weight:500;
+    border-left:2px solid var(--primary);padding-left:10px
+  }
+  nav svg{width:16px;height:16px;stroke-width:2}
+  .sidebar-foot{padding:16px;border-top:1px solid var(--border);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .pulse{width:8px;height:8px;border-radius:50%;background:var(--primary);position:relative}
+  .pulse::after{content:"";position:absolute;inset:0;border-radius:50%;background:var(--primary);animation:ping 1.5s infinite;opacity:.6}
+  @keyframes ping{75%,100%{transform:scale(2.5);opacity:0}}
+
+  main{flex:1;overflow-x:hidden}
+  header{
+    height:64px;border-bottom:1px solid var(--border);padding:0 32px;
+    display:flex;align-items:center;justify-content:space-between;
+    background:rgba(37,44,60,.4);backdrop-filter:blur(8px)
+  }
+  header .crumb{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--muted)}
+  .page{padding:32px;max-width:1200px}
+
+  /* Components */
+  .eyebrow{font-size:11px;letter-spacing:.25em;text-transform:uppercase;color:var(--primary);margin-bottom:8px}
+  .h1{font-size:36px}
+  .lead{color:var(--muted);margin-top:6px}
+  .badge{
+    display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;
+    font-size:13px;border:1px solid var(--border);background:var(--primary-soft);color:var(--fg)
+  }
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+  .card.pad{padding:24px}
+  .grid{display:grid;gap:16px}
+  .stats{grid-template-columns:repeat(4,1fr);margin-top:24px}
+  .stat{padding:20px}
+  .stat .row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+  .stat svg{width:18px;height:18px;color:var(--muted)}
+  .stat .delta{font-size:12px;color:var(--primary);font-family:var(--font-mono)}
+  .stat .val{font-size:24px;font-weight:700;font-family:var(--font-display)}
+  .stat .lab{font-size:12px;color:var(--muted);margin-top:4px}
+
+  .section{margin-top:32px}
+  .row-head{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;
+    border:1px solid var(--border);background:var(--secondary);font-size:13px;transition:.15s
+  }
+  .btn:hover{border-color:var(--primary);color:var(--primary)}
+  .btn svg{width:14px;height:14px}
+  .btn.primary{background:var(--primary);color:var(--primary-fg);border-color:var(--primary)}
+  .btn.primary:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+
+  .health{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .svc{
+    display:flex;align-items:center;gap:16px;padding:16px;
+    background:rgba(44,52,69,.5);border:1px solid var(--border);border-radius:8px
+  }
+  .svc-ico{
+    width:40px;height:40px;border-radius:8px;background:var(--bg);
+    display:grid;place-items:center;color:var(--muted);flex-shrink:0
+  }
+  .svc-ico svg{width:16px;height:16px}
+  .svc-info{flex:1;min-width:0}
+  .svc-name{font-size:14px;font-weight:500}
+  .svc-host{font-size:12px;color:var(--muted);font-family:var(--font-mono);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .svc-stat{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:12px}
+  .svc-stat.ok{color:var(--primary)}
+  .svc-stat.fail{color:var(--destructive)}
+  .svc-stat.pending{width:8px;height:8px;border-radius:50%;background:rgba(138,147,166,.5);animation:pulse 1.5s infinite}
+  @keyframes pulse{50%{opacity:.4}}
+
+  .section-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px}
+  .section-title{font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px}
+  .section-title svg{width:18px;height:18px;color:var(--primary)}
+  .section-sub{font-size:13px;color:var(--muted);margin-top:4px}
+
+  /* views */
+  .view{display:none}
+  .view.active{display:block}
+
+  /* responsive-ish */
+  @media (max-width:900px){
+    aside{width:80px}
+    .brand-name,.brand-sub,nav button span,.sidebar-foot span{display:none}
+    .stats{grid-template-columns:repeat(2,1fr)}
+    .health{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand">
+      <div class="brand-icon">M</div>
+      <div>
+        <div class="brand-name">Mercado</div>
+        <div class="brand-sub">Shop Console</div>
+      </div>
+    </div>
+    <nav id="nav">
+      <button data-view="overview" class="active">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Overview</span>
+      </button>
+      <button data-view="reset">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.6 7.6a5.5 5.5 0 11-7.78 7.78 5.5 5.5 0 017.78-7.78zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        <span>Reset Password</span>
+      </button>
+      <button data-view="orders">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+        <span>Customer Orders</span>
+      </button>
+      <button data-view="commissions">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 010-4h14v4M3 5v14a2 2 0 002 2h16v-5M18 12a2 2 0 100 4h4v-4h-4z"/></svg>
+        <span>Commissions</span>
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="pulse"></div><span>v2.4.1 · admin@mercado</span>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div class="crumb">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--primary)"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span class="mono" id="crumb">/admin</span>
+      </div>
+      <div class="mono" style="font-size:12px;color:var(--muted)" id="date"></div>
+    </header>
+
+    <!-- Overview -->
+    <section class="page view active" id="view-overview">
+      <div class="row-head">
+        <div>
+          <div class="eyebrow">Dashboard</div>
+          <h1 class="h1">Good morning, Admin.</h1>
+          <p class="lead">Everything you need to run the shop, in one place.</p>
+        </div>
+        <div class="badge"><span class="pulse"></span><span id="status-text">Probing services…</span></div>
+      </div>
+
+      <div class="grid stats" id="stats"></div>
+
+      <div class="section card pad">
+        <div class="section-head">
+          <div>
+            <div class="section-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              Shop server health
+            </div>
+            <div class="section-sub">Live ping check across infrastructure endpoints.</div>
+          </div>
+          <button class="btn" id="recheck">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Recheck
+          </button>
+        </div>
+        <div class="health" id="health"></div>
+      </div>
+    </section>
+
+    <!-- Reset password -->
+    <section class="page view" id="view-reset">
+      <div class="eyebrow">Account Security</div>
+      <h1 class="h1">Reset Password</h1>
+      <p class="lead">Find a customer and issue a new credential or send a reset link.</p>
+
+      <div class="grid section" style="grid-template-columns:1fr 1.2fr">
+        <div class="card pad">
+          <label class="eyebrow" style="color:var(--muted)">Find user</label>
+          <input type="text" placeholder="Email, name or user ID"
+                 style="width:100%;margin-top:8px;padding:10px 12px;background:var(--input);border:1px solid var(--border);border-radius:8px;font-size:14px"/>
+          <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px" id="user-list"></div>
+        </div>
+        <div class="card pad">
+          <div style="display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+            <div style="width:48px;height:48px;border-radius:50%;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-weight:600">EC</div>
+            <div>
+              <div style="font-weight:600">Elena Cruz</div>
+              <div style="font-size:12px;color:var(--muted)" class="mono">elena.cruz@example.com</div>
+            </div>
+          </div>
+          <div style="margin-top:24px">
+            <label class="eyebrow" style="color:var(--muted)">New password</label>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <input type="text" value="K7m!aQp9xN2vRf$" class="mono"
+                     style="flex:1;padding:10px 12px;background:var(--input);border:1px solid var(--border);border-radius:8px"/>
+              <button class="btn">Generate</button>
+            </div>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:8px;padding:12px;border-radius:8px;background:var(--warning-soft);border:1px solid rgba(232,192,101,.3);font-size:12px;color:var(--warning)">
+            ⚠ Manually setting a password forces re-login on all devices. Prefer sending a reset link when possible.
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px">
+            <button class="btn primary">🔑 Set password</button>
+            <button class="btn">✉ Email reset link</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Orders -->
+    <section class="page view" id="view-orders">
+      <div class="eyebrow">Customers</div>
+      <h1 class="h1">Customer Orders</h1>
+      <p class="lead">Look up any customer to see their profile and full order history.</p>
+
+      <div class="grid section" style="grid-template-columns:320px 1fr">
+        <div class="card pad" style="height:fit-content">
+          <input type="text" placeholder="Search customers"
+                 style="width:100%;padding:10px 12px;background:var(--input);border:1px solid var(--border);border-radius:8px;font-size:14px"/>
+          <div style="margin-top:12px" id="cust-list"></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:24px">
+          <div class="card pad">
+            <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px">
+              <div style="display:flex;align-items:center;gap:16px">
+                <div style="width:56px;height:56px;border-radius:14px;background:var(--primary-soft);color:var(--primary);display:grid;place-items:center;font-weight:700;font-size:18px">EC</div>
+                <div>
+                  <h2 style="font-size:20px">Elena Cruz</h2>
+                  <div class="mono" style="font-size:12px;color:var(--muted)">USR-1042</div>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div class="eyebrow" style="color:var(--muted)">Lifetime value</div>
+                <div style="font-size:28px;font-weight:700;font-family:var(--font-display);color:var(--primary)">$750.25</div>
+              </div>
+            </div>
+            <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:24px">
+              <div class="info"><div class="info-lab">✉ Email</div><div>elena.cruz@example.com</div></div>
+              <div class="info"><div class="info-lab">☎ Phone</div><div>+1 (415) 555-0142</div></div>
+              <div class="info"><div class="info-lab">📍 Shipping</div><div>248 Mission St, San Francisco, CA</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="padding:24px 24px 12px;display:flex;justify-content:space-between;align-items:center">
+              <div class="section-title">📦 Order history</div>
+              <span class="badge" style="background:transparent">3 orders</span>
+            </div>
+            <div id="order-list"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Commissions -->
+    <section class="page view" id="view-commissions">
+      <div class="row-head">
+        <div>
+          <div class="eyebrow">Payouts</div>
+          <h1 class="h1">Commissions</h1>
+          <p class="lead">Track seller earnings and what's owed this cycle.</p>
+        </div>
+        <button class="btn">⬇ Export CSV</button>
+      </div>
+
+      <div class="grid" style="grid-template-columns:repeat(3,1fr);margin-top:24px" id="comm-stats"></div>
+
+      <div class="card section">
+        <div style="padding:24px 24px 12px;display:flex;justify-content:space-between">
+          <div class="section-title">📈 Seller breakdown</div>
+          <span class="mono" style="font-size:12px;color:var(--muted)">Cycle · May 2026</span>
+        </div>
+        <div id="comm-list"></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<style>
+  .info{padding:12px;border-radius:8px;background:rgba(44,52,69,.5);border:1px solid var(--border);font-size:13px}
+  .info-lab{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px}
+  .order{padding:16px 24px;border-top:1px solid var(--border)}
+  .order:hover{background:rgba(44,52,69,.3)}
+  .order-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+  .order-id{font-family:var(--font-mono);font-size:13px;color:var(--primary)}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;border:1px solid}
+  .pill.ok{background:rgba(95,212,164,.15);color:var(--primary);border-color:rgba(95,212,164,.3)}
+  .pill.warn{background:var(--warning-soft);color:var(--warning);border-color:rgba(232,192,101,.3)}
+  .pill.bad{background:var(--destructive-soft);color:var(--destructive);border-color:rgba(230,115,115,.3)}
+  .cust-btn{width:100%;text-align:left;padding:12px;border-radius:8px;display:flex;justify-content:space-between;align-items:center;border:1px solid transparent}
+  .cust-btn:hover{background:rgba(44,52,69,.5)}
+  .cust-btn.active{background:var(--primary-soft);border-color:rgba(95,212,164,.3)}
+  .user-row{padding:12px;border-radius:8px;border:1px solid var(--border);background:rgba(44,52,69,.3);cursor:pointer}
+  .user-row:hover{border-color:rgba(95,212,164,.4)}
+  .user-row.active{background:var(--primary-soft);border-color:var(--primary)}
+  .comm-grid{display:grid;grid-template-columns:3fr 2fr 1fr 4fr 2fr;gap:16px;align-items:center;padding:14px 24px}
+  .comm-head{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);border-bottom:1px solid var(--border)}
+  .comm-row{border-top:1px solid var(--border)}
+  .comm-row:hover{background:rgba(44,52,69,.3)}
+  .bar{height:8px;border-radius:999px;background:var(--secondary);overflow:hidden;flex:1}
+  .bar > div{height:100%;background:linear-gradient(to right,var(--primary),var(--accent))}
+</style>
+
+<script>
+  // Date
+  document.getElementById('date').textContent = new Date().toLocaleDateString('en-US',
+    {weekday:'short',month:'short',day:'numeric'});
+
+  // Nav switching
+  const buttons = document.querySelectorAll('#nav button');
+  buttons.forEach(b => b.addEventListener('click', () => {
+    buttons.forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + b.dataset.view).classList.add('active');
+    document.getElementById('crumb').textContent = '/admin' + (b.dataset.view==='overview'?'':'/'+b.dataset.view);
+  }));
+
+  // Stats
+  const stats = [
+    {label:'Revenue today',value:'$12,840',delta:'+18.2%',ico:'$'},
+    {label:'Active orders',value:'47',delta:'+6',ico:'📦'},
+    {label:'Customers',value:'2,318',delta:'+24',ico:'👥'},
+    {label:'Conversion',value:'3.42%',delta:'+0.4%',ico:'📈'}
+  ];
+  document.getElementById('stats').innerHTML = stats.map(s=>`
+    <div class="card stat">
+      <div class="row"><span>${s.ico}</span><span class="delta">${s.delta}</span></div>
+      <div class="val">${s.value}</div><div class="lab">${s.label}</div>
+    </div>`).join('');
+
+  // Health check
+  const services = [
+    {name:'Storefront API',host:'shop-api.mercado.io',port:443,ico:'🖥'},
+    {name:'Database Cluster',host:'db-primary.mercado.io',port:5432,ico:'🗄'},
+    {name:'Worker Queue',host:'queue.mercado.io',port:6379,ico:'⚙'},
+    {name:'CDN Edge',host:'cdn.mercado.io',port:443,ico:'📡'}
+  ];
+  function renderHealth(states){
+    document.getElementById('health').innerHTML = services.map((s,i)=>{
+      const st = states[i];
+      let right = '<span class="svc-stat pending"></span>';
+      if(st) right = st.ok
+        ? `<span class="svc-stat ok">✓ ${st.ms}ms</span>`
+        : `<span class="svc-stat fail">✕ timeout</span>`;
+      return `<div class="svc">
+        <div class="svc-ico">${s.ico}</div>
+        <div class="svc-info"><div class="svc-name">${s.name}</div>
+          <div class="svc-host">${s.host}:${s.port}</div></div>
+        ${right}</div>`;
+    }).join('');
+  }
+  function ping(){
+    document.getElementById('status-text').textContent = 'Probing services…';
+    const states = services.map(()=>null);
+    renderHealth(states);
+    services.forEach((s,i)=>{
+      setTimeout(()=>{
+        states[i] = {ok: Math.random()>0.15, ms: Math.floor(20+Math.random()*180)};
+        renderHealth(states);
+        if(i===services.length-1){
+          const allUp = states.every(x=>x&&x.ok);
+          document.getElementById('status-text').textContent = allUp?'All systems operational':'Degraded service';
+        }
+      }, 400 + i*350);
+    });
+  }
+  document.getElementById('recheck').addEventListener('click', ping);
+  ping();
+
+  // Reset password user list
+  const users = [
+    {id:'USR-1042',name:'Elena Cruz',email:'elena.cruz@example.com',last:'2 hours ago'},
+    {id:'USR-2871',name:'Marcus Lee',email:'marcus@northwind.io',last:'3 days ago'},
+    {id:'USR-3104',name:'Yuki Tanaka',email:'yuki.tanaka@dotmail.jp',last:'Just now'}
+  ];
+  document.getElementById('user-list').innerHTML = users.map((u,i)=>`
+    <div class="user-row ${i===0?'active':''}">
+      <div style="display:flex;justify-content:space-between"><strong style="font-size:14px">${u.name}</strong>
+      <span class="mono" style="font-size:12px;color:var(--muted)">${u.id}</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">${u.email}</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px;text-transform:uppercase;letter-spacing:.1em">Last login · ${u.last}</div>
+    </div>`).join('');
+
+  // Customer list (orders view)
+  document.getElementById('cust-list').innerHTML = users.map((u,i)=>`
+    <button class="cust-btn ${i===0?'active':''}">
+      <div><div style="font-size:14px;font-weight:500">${u.name}</div>
+      <div class="mono" style="font-size:12px;color:var(--muted)">${u.id}</div></div>
+      <span style="color:var(--muted)">›</span>
+    </button>`).join('');
+
+  // Orders
+  const orders = [
+    {id:'ORD-9821',date:'2026-05-06',status:'Shipped',total:248.5,items:'Linen blazer · Silk scarf',cls:'ok'},
+    {id:'ORD-9744',date:'2026-04-22',status:'Delivered',total:89.0,items:'Ceramic mug set',cls:'ok'},
+    {id:'ORD-9610',date:'2026-03-14',status:'Delivered',total:412.75,items:'Wool overcoat',cls:'ok'}
+  ];
+  document.getElementById('order-list').innerHTML = orders.map(o=>`
+    <div class="order">
+      <div class="order-row">
+        <div style="display:flex;align-items:center;gap:16px">
+          <span class="order-id">${o.id}</span>
+          <span style="font-size:12px;color:var(--muted)">📅 ${o.date}</span>
+          <span class="pill ${o.cls}">${o.status}</span>
+        </div>
+        <div style="font-weight:600;font-family:var(--font-display)">$${o.total.toFixed(2)}</div>
+      </div>
+      <div style="margin-top:8px;font-size:12px;color:var(--muted)">${o.items}</div>
+    </div>`).join('');
+
+  // Commissions
+  const sellers = [
+    {id:'SLR-01',name:'Atelier Nord',sales:18420,rate:.12,status:'Paid'},
+    {id:'SLR-02',name:'Kasa Living',sales:9870,rate:.15,status:'Pending'},
+    {id:'SLR-03',name:'Bloom & Co',sales:4310,rate:.10,status:'Paid'},
+    {id:'SLR-04',name:'Northwind Audio',sales:24180,rate:.08,status:'Pending'},
+    {id:'SLR-05',name:'Tanaka Tea House',sales:2780,rate:.18,status:'Paid'}
+  ];
+  const total = sellers.reduce((a,s)=>a+s.sales*s.rate,0);
+  const max = Math.max(...sellers.map(s=>s.sales*s.rate));
+  document.getElementById('comm-stats').innerHTML = `
+    <div class="card stat" style="background:linear-gradient(135deg,rgba(95,212,164,.15),var(--card));border-color:rgba(95,212,164,.3)">
+      <div class="row"><span style="color:var(--primary)">💰</span><span class="delta">+22.4%</span></div>
+      <div class="val" style="font-size:28px">$${total.toFixed(2)}</div>
+      <div class="lab">Total commission · this month</div>
+    </div>
+    <div class="card stat"><div class="row"><span>↓</span><span class="delta">+12.1%</span></div>
+      <div class="val" style="font-size:28px">$${(total*0.7).toFixed(2)}</div><div class="lab">Paid out</div></div>
+    <div class="card stat"><div class="row"><span>↑</span><span class="delta" style="color:var(--destructive)">-3.2%</span></div>
+      <div class="val" style="font-size:28px">$${(total*0.3).toFixed(2)}</div><div class="lab">Pending</div></div>`;
+
+  document.getElementById('comm-list').innerHTML = `
+    <div class="comm-grid comm-head">
+      <div>Seller</div><div style="text-align:right">Sales</div>
+      <div style="text-align:right">Rate</div><div>Earned</div><div style="text-align:right">Status</div>
+    </div>` + sellers.map(s=>{
+      const earned = s.sales*s.rate; const pct = (earned/max)*100;
+      return `<div class="comm-grid comm-row">
+        <div><div style="font-size:14px;font-weight:500">${s.name}</div>
+          <div class="mono" style="font-size:12px;color:var(--muted)">${s.id}</div></div>
+        <div class="mono" style="text-align:right;font-size:13px">$${s.sales.toLocaleString()}</div>
+        <div class="mono" style="text-align:right;font-size:13px;color:var(--muted)">${(s.rate*100).toFixed(0)}%</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="bar"><div style="width:${pct}%"></div></div>
+          <div style="width:80px;text-align:right;font-weight:600;font-family:var(--font-display);font-size:13px">$${earned.toFixed(2)}</div>
+        </div>
+        <div style="text-align:right"><span class="pill ${s.status==='Paid'?'ok':'warn'}">${s.status}</span></div>
+      </div>`;
+    }).join('');
+</script>
+</body>
+</html>

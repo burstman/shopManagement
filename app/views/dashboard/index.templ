@@ -1,0 +1,201 @@
+package dashboard
+
+import (
+	"fmt"
+	"shopDashboard/app/db"
+	"shopDashboard/app/services"
+)
+
+type PageData struct {
+	Affiliate  *db.Affiliate
+	Orders     []services.Order
+	Commission *services.Commission
+	Errors     []db.AffiliateError
+	Error      string
+}
+
+templ Index(data PageData) {
+	<div class="flex flex-col gap-6" id="dashboard-container">
+		<div class="row-head">
+			<div>
+				<div class="eyebrow">Dashboard</div>
+				<h1 class="text-2xl font-bold">Good morning, Admin.</h1>
+				<p class="lead">Everything you need to run the shop, in one place.</p>
+			</div>
+			<div style="display:flex;align-items:center;gap:12px">
+				if data.Affiliate != nil {
+					<span class="mono" style="font-size:12px;color:var(--muted)">{ fmt.Sprintf("%s (%s)", data.Affiliate.Name, data.Affiliate.AffiliateID) }</span>
+					@DomainDisplay(data.Affiliate.ID, data.Affiliate.Domain)
+					<button class="btn btn-primary" hx-get={ fmt.Sprintf("/affiliate/%d", data.Affiliate.ID) } hx-target="#dashboard-container" hx-swap="outerHTML">
+						<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+						Refresh
+					</button>
+				}
+			</div>
+		</div>
+
+		if data.Affiliate != nil {
+			<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+				<div class="card card-pad" style="padding:4px 10px;display:flex;align-items:center;gap:8px;width:fit-content">
+					<div hx-get={ fmt.Sprintf("/affiliate/%d/ping", data.Affiliate.ID) } hx-trigger="load, every 60s" hx-swap="innerHTML" style="display:flex;align-items:center;gap:4px">
+						@PingDisplay(data.Affiliate.ID, "checking", 0)
+					</div>
+					<span class="mono" style="font-size:10px;color:var(--muted)">health check</span>
+				</div>
+				@DashboardURLDisplay(data.Affiliate.ID, data.Affiliate.DashboardURL)
+			</div>
+		}
+
+		if data.Error != "" {
+			<div class="card card-pad" style="border-color:rgba(230,115,115,.3);background:var(--destructive-soft);">
+				<p class="font-semibold" style="color:var(--destructive)">Error</p>
+				<p class="text-sm mt-1" style="color:var(--destructive)">{ data.Error }</p>
+			</div>
+		}
+
+		if data.Commission != nil {
+			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+				<div class="card card-pad">
+					<div class="stat-row">
+						<span style="font-size:20px">📋</span>
+						<span class="stat-delta">{ fmt.Sprint(data.Commission.TotalOrders) }</span>
+					</div>
+					<div class="stat-val">{ fmt.Sprint(data.Commission.TotalOrders) }</div>
+					<div class="stat-lab">Total Orders</div>
+				</div>
+				<div class="card card-pad">
+					<div class="stat-row">
+						<span style="font-size:20px">💰</span>
+						<span class="stat-delta">Revenue</span>
+					</div>
+					<div class="stat-val" style="color:var(--primary)">{ fmt.Sprintf("%.2f", data.Commission.TotalRevenue) }</div>
+					<div class="stat-lab">Total Revenue</div>
+				</div>
+				<div class="card card-pad">
+					<div class="stat-row">
+						<span style="font-size:20px">🏷</span>
+						<span class="stat-delta">Total</span>
+					</div>
+					<div class="stat-val">{ fmt.Sprintf("%.2f", data.Commission.TotalCommission) }</div>
+					<div class="stat-lab">Total Commission</div>
+				</div>
+				<div class="card card-pad">
+					<div class="stat-row">
+						<span style="font-size:20px">⏳</span>
+						<span class="stat-delta" style="color:var(--warning)">Pending</span>
+					</div>
+					<div class="stat-val" style="color:var(--warning)">{ fmt.Sprintf("%.2f", data.Commission.PendingCommission) }</div>
+					<div class="stat-lab">Pending Commission</div>
+				</div>
+			</div>
+
+			<div class="card card-pad-lg">
+				<div class="section-head" style="margin-bottom:16px">
+					<div>
+						<div class="section-title">
+							<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12V7H5a2 2 0 010-4h14v4M3 5v14a2 2 0 002 2h16v-5M18 12a2 2 0 100 4h4v-4h-4z"/></svg>
+							Commission Breakdown
+						</div>
+						<div class="section-sub">Paid vs pending commission split</div>
+					</div>
+					<span class="mono" style="font-size:13px;color:var(--primary)">{ fmt.Sprintf("%.2f", data.Commission.TotalCommission) } total</span>
+				</div>
+				<div class="bar-stacked" style="height:12px;gap:3px">
+					if data.Commission.TotalCommission > 0 {
+						if data.Commission.PaidCommission > 0 {
+							<div style={ fmt.Sprintf("width: %.1f%%; background: var(--primary)", data.Commission.PaidCommission/data.Commission.TotalCommission*100) }></div>
+						}
+						if data.Commission.PendingCommission > 0 {
+							<div style={ fmt.Sprintf("width: %.1f%%; background: var(--warning)", data.Commission.PendingCommission/data.Commission.TotalCommission*100) }></div>
+						}
+					}
+				</div>
+				<div style="display:flex;flex-wrap:wrap;gap:24px;margin-top:16px">
+					<div style="display:flex;align-items:center;gap:8px;font-size:13px">
+						<div style="width:10px;height:10px;border-radius:50%;background:var(--primary)"></div>
+						<span style="color:var(--muted)">Paid</span>
+						<span class="mono" style="font-weight:600">{ fmt.Sprintf("%.2f", data.Commission.PaidCommission) }</span>
+						if data.Commission.TotalCommission > 0 {
+							<span class="mono" style="font-size:11px;color:var(--muted)">({ fmt.Sprintf("%.1f", data.Commission.PaidCommission/data.Commission.TotalCommission*100) }%)</span>
+						}
+					</div>
+					<div style="display:flex;align-items:center;gap:8px;font-size:13px">
+						<div style="width:10px;height:10px;border-radius:50%;background:var(--warning)"></div>
+						<span style="color:var(--muted)">Pending</span>
+						<span class="mono" style="font-weight:600">{ fmt.Sprintf("%.2f", data.Commission.PendingCommission) }</span>
+						if data.Commission.TotalCommission > 0 {
+							<span class="mono" style="font-size:11px;color:var(--muted)">({ fmt.Sprintf("%.1f", data.Commission.PendingCommission/data.Commission.TotalCommission*100) }%)</span>
+						}
+					</div>
+				</div>
+			</div>
+		}
+
+		<div class="card">
+			<div class="card-pad-lg" style="padding-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+				<div class="section-title">
+					<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6zM3 6h18M16 10a4 4 0 01-8 0"/></svg>
+					Orders
+				</div>
+				<span class="mono" style="font-size:12px;color:var(--muted)">{ fmt.Sprint(len(data.Orders)) } total</span>
+			</div>
+			<div class="overflow-x-auto">
+				<table class="min-w-full">
+					<thead>
+						<tr>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">ID</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Customer</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Date</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Total</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Commission</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Commission</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-200">
+						for _, order := range data.Orders {
+							<tr class="hover:bg-gray-50 transition">
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium mono" style="color:var(--primary)">#{ fmt.Sprint(order.ID) }</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<div class="text-sm font-medium">{ order.FirstName } { order.LastName }</div>
+									<div class="text-sm" style="color:var(--muted)">{ order.Email }</div>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--muted)">{ order.CreatedAt }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-bold">{ fmt.Sprintf("%.2f", order.Total) }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-bold mono" style="color:var(--primary)">{ fmt.Sprintf("%.2f", order.Commission) }</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class={ "pill",
+										templ.KV("pill-ok", order.OrderStatus == "completed"),
+										templ.KV("pill-warn", order.OrderStatus == "pending"),
+										templ.KV("pill-info", order.OrderStatus == "shipped"),
+										templ.KV("pill-bad", order.OrderStatus == "cancelled"),
+										templ.KV("pill-default", order.OrderStatus == "abandoned") }>
+										{ order.OrderStatus }
+									</span>
+								</td>
+								<td class="px-6 py-4 whitespace-nowrap">
+									<span class={ "pill",
+										templ.KV("pill-warn", order.CommissionStatus == "pending"),
+										templ.KV("pill-ok", order.CommissionStatus == "paid"),
+										templ.KV("pill-bad", order.CommissionStatus == "cancelled") }>
+										{ order.CommissionStatus }
+									</span>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			if len(data.Orders) == 0 && data.Error == "" {
+				<div style="text-align:center;padding:48px 0;color:var(--muted)">
+					<p style="font-size:18px;margin-bottom:4px">No orders found.</p>
+					<p class="text-sm">No orders in the database yet.</p>
+				</div>
+			}
+		</div>
+
+		if len(data.Errors) > 0 {
+			@ErrorsList(data.Errors)
+		}
+	</div>
+}

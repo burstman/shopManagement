@@ -1,0 +1,40 @@
+package auth
+
+templ SetupPage(name, email, errorMsg string) {
+	<div class="flex flex-col gap-6" style="max-width:420px;margin:0 auto;padding:48px 0">
+		<div style="text-align:center">
+			<h1 class="text-2xl font-bold">Setup</h1>
+			<p class="lead">Create the first super admin account</p>
+		</div>
+
+		if errorMsg != "" {
+			<div class="card card-pad" style="border-color:rgba(230,115,115,.3);background:var(--destructive-soft);">
+				<p style="color:var(--destructive);font-size:13px">{ errorMsg }</p>
+			</div>
+		}
+
+		<form method="POST" action="/setup" style="display:flex;flex-direction:column;gap:12px">
+			<input type="text" name="name" value={ name } placeholder="Full Name" required style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-size:14px" />
+			<input type="email" name="email" value={ email } placeholder="Email" required style="padding:10px 12px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--fg);font-size:14px" />
+			<button type="submit" class="btn btn-primary" style="padding:10px;border-radius:6px;cursor:pointer">Create Admin</button>
+		</form>
+	</div>
+}
+
+templ SetupSuccess(name, email, password string) {
+	<div class="flex flex-col gap-6" style="max-width:420px;margin:0 auto;padding:48px 0">
+		<div style="text-align:center">
+			<h1 class="text-2xl font-bold">Admin Created</h1>
+			<p class="lead">Save these credentials — you won't see the password again</p>
+		</div>
+
+		<div class="card card-pad" style="text-align:center">
+			<div style="font-size:13px;color:var(--muted);margin-bottom:8px">Email</div>
+			<div class="mono" style="font-size:15px;color:var(--fg)">{ email }</div>
+			<div style="font-size:13px;color:var(--muted);margin:16px 0 8px">Password</div>
+			<div class="mono" style="font-size:18px;font-weight:700;color:var(--primary);padding:8px 16px;background:var(--surface);border-radius:6px;display:inline-block">{ password }</div>
+		</div>
+
+		<a href="/login" class="btn btn-primary" style="text-align:center;padding:10px;border-radius:6px;text-decoration:none">Go to Login</a>
+	</div>
+}

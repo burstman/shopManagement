@@ -1,0 +1,80 @@
+package auth
+
+import (
+	"fmt"
+	"shopDashboard/app/db"
+)
+
+templ AdminsPage(admins []db.SuperAdmin, errorMsg string) {
+	<div class="flex flex-col gap-6">
+		<div class="row-head">
+			<div>
+				<div class="eyebrow">Administration</div>
+				<h1 class="text-2xl font-bold">Super Admins</h1>
+			</div>
+		</div>
+
+		if errorMsg != "" {
+			<div class="card card-pad" style="border-color:rgba(230,115,115,.3);background:var(--destructive-soft);">
+				<p style="color:var(--destructive);font-size:13px">{ errorMsg }</p>
+			</div>
+		}
+
+		<div class="card">
+			<div class="card-pad-lg">
+				<div class="section-title" style="margin-bottom:12px">Add New Admin</div>
+				<form method="POST" action="/admins" style="display:flex;flex-direction:column;gap:10px;max-width:400px">
+					<input type="text" name="name" placeholder="Full Name" required style="padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-size:13px" />
+					<input type="email" name="email" placeholder="Email" required style="padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-size:13px" />
+					<button type="submit" class="btn btn-primary" style="padding:8px;border-radius:4px;cursor:pointer;width:fit-content">Add Admin</button>
+				</form>
+			</div>
+		</div>
+
+		<div class="card">
+			<div class="card-pad-lg" style="padding-bottom:12px">
+				<div class="section-title">{ fmt.Sprintf("Admins (%d)", len(admins)) }</div>
+			</div>
+			<div class="overflow-x-auto">
+				<table class="min-w-full">
+					<thead>
+						<tr>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Name</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Email</th>
+							<th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Created</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-200">
+						for _, a := range admins {
+							<tr class="hover:bg-gray-50 transition">
+								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">{ a.Name }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--muted)">{ a.Email }</td>
+								<td class="px-6 py-4 whitespace-nowrap text-sm" style="color:var(--muted)">{ a.CreatedAt.Format("Jan 02, 2006") }</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+}
+
+templ AdminCreated(name, email, password string) {
+	<div class="flex flex-col gap-6" style="max-width:480px;margin:0 auto;padding:48px 0">
+		<div style="text-align:center">
+			<h1 class="text-2xl font-bold">Admin Created</h1>
+			<p class="lead">Save these credentials — you won't see the password again</p>
+		</div>
+
+		<div class="card card-pad" style="text-align:center">
+			<div style="font-size:13px;color:var(--muted);margin-bottom:4px">Name</div>
+			<div style="font-size:16px;font-weight:600">{ name }</div>
+			<div style="font-size:13px;color:var(--muted);margin:16px 0 4px">Email</div>
+			<div class="mono" style="font-size:14px">{ email }</div>
+			<div style="font-size:13px;color:var(--muted);margin:16px 0 4px">Password</div>
+			<div class="mono" style="font-size:18px;font-weight:700;color:var(--primary);padding:8px 16px;background:var(--surface);border-radius:6px;display:inline-block">{ password }</div>
+		</div>
+
+		<a href="/admins" class="btn btn-primary" style="text-align:center;padding:10px;border-radius:6px;text-decoration:none">Back to Admins</a>
+	</div>
+}
