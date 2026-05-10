@@ -17,7 +17,7 @@ func main() {
 
 	cfg := config.Get()
 
-	if cfg.DBHost != "" {
+	if cfg.DBHost != "" || cfg.DatabaseURL != "" {
 		if err := db.Connect(cfg); err != nil {
 			log.Fatalf("Failed to connect to database: %v", err)
 		}
@@ -28,8 +28,6 @@ func main() {
 
 	app.InitializeMiddleware(router)
 	app.InitializeRoutes(router)
-
-	router.Handle("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 
 	fmt.Printf("Shop Dashboard running on http://localhost%s\n", cfg.ListenAddr)
 	log.Fatal(http.ListenAndServe(cfg.ListenAddr, router))

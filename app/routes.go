@@ -43,6 +43,10 @@ func InitializeRoutes(router *chi.Mux) {
 	}
 
 	router.Group(func(r chi.Router) {
+		r.Get("/healthz", func(w http.ResponseWriter, rq *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("ok"))
+		})
 		r.Get("/setup", kit.Handler(handlers.HandleSetup))
 		r.Post("/setup", kit.Handler(handlers.HandleSetup))
 		r.Get("/login", kit.Handler(handlers.HandleLogin))

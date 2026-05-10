@@ -14,10 +14,13 @@ import (
 var pool *pgxpool.Pool
 
 func Connect(cfg *config.Config) error {
-	connStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
-		cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName)
-	if cfg.DBPassword != "" {
-		connStr += " password=" + cfg.DBPassword
+	connStr := cfg.DatabaseURL
+	if connStr == "" {
+		connStr = fmt.Sprintf("host=%s port=%s user=%s dbname=%s sslmode=disable",
+			cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBName)
+		if cfg.DBPassword != "" {
+			connStr += " password=" + cfg.DBPassword
+		}
 	}
 	var err error
 	pool, err = pgxpool.New(context.Background(), connStr)

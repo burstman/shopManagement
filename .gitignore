@@ -1,0 +1,6 @@
+.env
+tmp/
+bin/
+*.exe
+.DS_Store
+Thumbs.db
