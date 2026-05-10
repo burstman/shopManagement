@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"shopDashboard/app"
 	"shopDashboard/app/config"
 	"shopDashboard/app/db"
@@ -13,6 +14,12 @@ import (
 )
 
 func main() {
+	if _, err := os.Stat(".env"); os.IsNotExist(err) {
+		if secret := os.Getenv("SUPERKIT_SECRET"); secret != "" {
+			os.WriteFile(".env", []byte("SUPERKIT_SECRET="+secret+"\n"), 0644)
+		}
+	}
+
 	kit.Setup()
 
 	cfg := config.Get()
