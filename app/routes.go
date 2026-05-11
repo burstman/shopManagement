@@ -18,7 +18,7 @@ func InitializeMiddleware(router *chi.Mux) {
 
 func checkSetup(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		skip := r.URL.Path == "/setup" || r.URL.Path == "/login" ||
+		skip := r.URL.Path == "/setup" || r.URL.Path == "/login" || r.URL.Path == "/healthz" ||
 			len(r.URL.Path) >= 5 && r.URL.Path[:5] == "/api/" ||
 			len(r.URL.Path) >= 8 && r.URL.Path[:8] == "/public/"
 		if skip {
