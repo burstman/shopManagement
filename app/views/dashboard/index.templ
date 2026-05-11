@@ -11,6 +11,7 @@ type PageData struct {
 	Orders     []services.Order
 	Commission *services.Commission
 	Errors     []db.AffiliateError
+	Warnings   []db.AffiliateWarn
 	Error      string
 }
 
@@ -196,6 +197,10 @@ templ Index(data PageData) {
 
 		if len(data.Errors) > 0 {
 			@ErrorsList(data.Errors)
+		}
+
+		if len(data.Warnings) > 0 {
+			@WarningsList(data.Warnings)
 		}
 	</div>
 }

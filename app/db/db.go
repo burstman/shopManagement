@@ -89,6 +89,25 @@ func AutoMigrate() error {
 	}
 
 	_, err = pool.Exec(context.Background(),
+		`CREATE TABLE IF NOT EXISTS api_warnings (
+			id SERIAL PRIMARY KEY,
+			affiliate_id INTEGER NOT NULL REFERENCES affiliates(id),
+			warn_type TEXT NOT NULL,
+			message TEXT NOT NULL,
+			details TEXT DEFAULT '',
+			created_at TIMESTAMPTZ DEFAULT NOW()
+		)`)
+	if err != nil {
+		return fmt.Errorf("failed to create api_warnings table: %w", err)
+	}
+
+	_, err = pool.Exec(context.Background(),
+		`CREATE INDEX IF NOT EXISTS idx_api_warnings_affiliate_id ON api_warnings(affiliate_id)`)
+	if err != nil {
+		return fmt.Errorf("failed to create index on api_warnings: %w", err)
+	}
+
+	_, err = pool.Exec(context.Background(),
 		`CREATE TABLE IF NOT EXISTS super_admins (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL,
@@ -226,6 +245,48 @@ func GetAffiliates() ([]Affiliate, error) {
 	return affiliates, nil
 }
 
+func CreateAffiliateWarn(affiliateID int, warnType, message, details string) (*AffiliateWarn, error) {
+	var w AffiliateWarn
+	err := pool.QueryRow(context.Background(),
+		`INSERT INTO api_warnings (affiliate_id, warn_type, message, details)
+		 VALUES ($1, $2, $3, $4)
+		 RETURNING id, affiliate_id, warn_type, message, details, created_at`,
+		affiliateID, warnType, message, details,
+	).Scan(&w.ID, &w.AffiliateID, &w.WarnType, &w.Message, &w.Details, &w.CreatedAt)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create affiliate warning: %w", err)
+	}
+	return &w, nil
+}
+
+func GetAffiliateWarnings(affiliateID int, limit int) ([]AffiliateWarn, error) {
+	if limit <= 0 {
+		limit = 50
+	}
+	rows, err := pool.Query(context.Background(),
+		`SELECT id, affiliate_id, warn_type, message, COALESCE(details, ''), created_at
+		 FROM api_warnings
+		 WHERE affiliate_id = $1
+		 ORDER BY created_at DESC
+		 LIMIT $2`,
+		affiliateID, limit,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query affiliate warnings: %w", err)
+	}
+	defer rows.Close()
+
+	var warnings []AffiliateWarn
+	for rows.Next() {
+		var w AffiliateWarn
+		if err := rows.Scan(&w.ID, &w.AffiliateID, &w.WarnType, &w.Message, &w.Details, &w.CreatedAt); err != nil {
+			return nil, fmt.Errorf("failed to scan affiliate warning: %w", err)
+		}
+		warnings = append(warnings, w)
+	}
+	return warnings, nil
+}
+
 func CreateAffiliateError(affiliateID int, errorType, message, details, stack string) (*AffiliateError, error) {
 	var e AffiliateError
 	err := pool.QueryRow(context.Background(),
@@ -266,6 +327,15 @@ func GetAffiliateErrors(affiliateID int, limit int) ([]AffiliateError, error) {
 		errors = append(errors, e)
 	}
 	return errors, nil
+}
+
+type AffiliateWarn struct {
+	ID          int       `json:"id"`
+	AffiliateID int       `json:"affiliate_id"`
+	WarnType    string    `json:"warn_type"`
+	Message     string    `json:"message"`
+	Details     string    `json:"details"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type SuperAdmin struct {

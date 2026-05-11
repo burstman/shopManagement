@@ -120,6 +120,11 @@ func HandleAffiliateDashboard(kit *kit.Kit) error {
 		data.Errors = errors
 	}
 
+	warnings, err := db.GetAffiliateWarnings(affiliate.ID, 50)
+	if err == nil {
+		data.Warnings = warnings
+	}
+
 	if kit.Request.Header.Get("HX-Request") == "true" {
 		return kit.Render(dashboard.Index(data))
 	}
@@ -214,4 +219,53 @@ func HandleReportError(kit *kit.Kit) error {
 	}
 
 	return kit.Render(dashboard.ErrorStored(created))
+}
+
+func HandleReportWarn(kit *kit.Kit) error {
+	apiKey := kit.Request.Header.Get("Authorization")
+	if apiKey == "" || len(apiKey) < 8 {
+		kit.Response.WriteHeader(http.StatusUnauthorized)
+		return kit.Render(dashboard.WarnResponse("missing or invalid authorization header"))
+	}
+
+	if len(apiKey) > 7 && apiKey[:7] == "Bearer " {
+		apiKey = apiKey[7:]
+	}
+
+	aff, err := db.GetAffiliateByAPIKey(apiKey)
+	if err != nil {
+		kit.Response.WriteHeader(http.StatusUnauthorized)
+		return kit.Render(dashboard.WarnResponse("invalid api key"))
+	}
+
+	var body struct {
+		Message     string `json:"message"`
+		Path        string `json:"path"`
+		Method      string `json:"method"`
+		Host        string `json:"host"`
+		AffiliateID string `json:"affiliate_id"`
+	}
+	if err := json.NewDecoder(kit.Request.Body).Decode(&body); err != nil {
+		kit.Response.WriteHeader(http.StatusBadRequest)
+		return kit.Render(dashboard.WarnResponse("invalid json body"))
+	}
+
+	if body.Message == "" {
+		kit.Response.WriteHeader(http.StatusBadRequest)
+		return kit.Render(dashboard.WarnResponse("message field is required"))
+	}
+
+	warnType := body.Path
+	if warnType == "" {
+		warnType = "unknown"
+	}
+	details := fmt.Sprintf("method=%s host=%s", body.Method, body.Host)
+
+	created, err := db.CreateAffiliateWarn(aff.ID, warnType, body.Message, details)
+	if err != nil {
+		kit.Response.WriteHeader(http.StatusInternalServerError)
+		return kit.Render(dashboard.WarnResponse("failed to store warning"))
+	}
+
+	return kit.Render(dashboard.WarnStored(created))
 }
