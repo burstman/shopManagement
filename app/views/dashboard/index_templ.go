@@ -65,7 +65,7 @@ func Index(data PageData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = DomainDisplay(data.Affiliate.ID, data.Affiliate.Domain).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = ShopURLDisplay(data.Affiliate.ID, data.Affiliate.ShopURL).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

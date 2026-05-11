@@ -23,13 +23,13 @@ func HandlePing(kit *kit.Kit) error {
 	}
 
 	aff, err := db.GetAffiliate(id)
-	if err != nil || aff.Domain == "" {
+	if err != nil || aff.ShopURL == "" {
 		return kit.Render(dashboard.PingDisplay(id, "unreachable", 0))
 	}
 
 	client := &http.Client{Timeout: 5 * time.Second}
 	start := time.Now()
-	resp, err := client.Get(aff.Domain + "/health")
+	resp, err := client.Get(aff.ShopURL + "/health")
 	elapsed := time.Since(start).Milliseconds()
 	if err != nil {
 		return kit.Render(dashboard.PingDisplay(id, "unreachable", elapsed))
@@ -131,19 +131,19 @@ func HandleUpdateDomain(kit *kit.Kit) error {
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		kit.Response.WriteHeader(http.StatusBadRequest)
-		return kit.Render(dashboard.DomainDisplay(id, ""))
+		return kit.Render(dashboard.ShopURLDisplay(id, ""))
 	}
 
-	domain := kit.Request.FormValue("domain")
-	if err := db.UpdateAffiliateDomain(id, domain); err != nil {
+	shopURL := kit.Request.FormValue("shop_url")
+	if err := db.UpdateAffiliateShopURL(id, shopURL); err != nil {
 		aff, fetchErr := db.GetAffiliate(id)
 		if fetchErr != nil {
-			return kit.Render(dashboard.DomainDisplay(id, ""))
+			return kit.Render(dashboard.ShopURLDisplay(id, ""))
 		}
-		return kit.Render(dashboard.DomainDisplay(id, aff.Domain))
+		return kit.Render(dashboard.ShopURLDisplay(id, aff.ShopURL))
 	}
 
-	return kit.Render(dashboard.DomainDisplay(id, domain))
+	return kit.Render(dashboard.ShopURLDisplay(id, shopURL))
 }
 
 func HandleUpdateDashboardURL(kit *kit.Kit) error {

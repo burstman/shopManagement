@@ -57,9 +57,9 @@ func AutoMigrate() error {
 	}
 
 	_, err = pool.Exec(context.Background(),
-		`ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS domain TEXT DEFAULT ''`)
+		`ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS shop_url TEXT DEFAULT ''`)
 	if err != nil {
-		return fmt.Errorf("failed to add domain column: %w", err)
+		return fmt.Errorf("failed to add shop_url column: %w", err)
 	}
 
 	_, err = pool.Exec(context.Background(),
@@ -108,7 +108,7 @@ type Affiliate struct {
 	AffiliateID  string
 	Name         string
 	Email        string
-	Domain       string
+	ShopURL      string
 	Rate         float64
 	APIKey       string
 	DashboardURL string
@@ -160,10 +160,10 @@ func GenerateAndEnsureAPIKey(affiliateID int) (string, error) {
 func GetAffiliate(id int) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
-		`SELECT id, affiliate_id, name, email, domain, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
 		 FROM affiliates WHERE id = $1 AND active = true`,
 		id,
-	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.Domain, &a.Rate, &a.APIKey, &a.DashboardURL)
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get affiliate %d: %w", id, err)
 	}
@@ -173,23 +173,23 @@ func GetAffiliate(id int) (*Affiliate, error) {
 func GetAffiliateByAPIKey(apiKey string) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
-		`SELECT id, affiliate_id, name, email, domain, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
 		 FROM affiliates WHERE api_key = $1 AND active = true`,
 		apiKey,
-	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.Domain, &a.Rate, &a.APIKey, &a.DashboardURL)
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL)
 	if err != nil {
 		return nil, fmt.Errorf("invalid api key: %w", err)
 	}
 	return &a, nil
 }
 
-func UpdateAffiliateDomain(id int, domain string) error {
+func UpdateAffiliateShopURL(id int, shopURL string) error {
 	_, err := pool.Exec(context.Background(),
-		"UPDATE affiliates SET domain = $1 WHERE id = $2 AND active = true",
-		domain, id,
+		"UPDATE affiliates SET shop_url = $1 WHERE id = $2 AND active = true",
+		shopURL, id,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to update domain for affiliate %d: %w", id, err)
+		return fmt.Errorf("failed to update shop_url for affiliate %d: %w", id, err)
 	}
 	return nil
 }
@@ -207,7 +207,7 @@ func UpdateAffiliateDashboardURL(id int, url string) error {
 
 func GetAffiliates() ([]Affiliate, error) {
 	rows, err := pool.Query(context.Background(),
-		`SELECT id, affiliate_id, name, email, domain, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
 		 FROM affiliates WHERE active = true
 		 ORDER BY id`)
 	if err != nil {
@@ -218,7 +218,7 @@ func GetAffiliates() ([]Affiliate, error) {
 	var affiliates []Affiliate
 	for rows.Next() {
 		var a Affiliate
-		if err := rows.Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.Domain, &a.Rate, &a.APIKey, &a.DashboardURL); err != nil {
+		if err := rows.Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL); err != nil {
 			return nil, fmt.Errorf("failed to scan affiliate: %w", err)
 		}
 		affiliates = append(affiliates, a)
