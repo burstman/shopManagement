@@ -45,6 +45,7 @@ templ Index(data PageData) {
 				</div>
 				@DashboardURLDisplay(data.Affiliate.ID, data.Affiliate.DashboardURL)
 			</div>
+			@ResetCredentialsDisplay(data.Affiliate.ID, "")
 		}
 
 		if data.Error != "" {

@@ -342,7 +342,7 @@ func DashboardURLDisplay(id int, url string) templ.Component {
 	})
 }
 
-func ShopURLDisplay(id int, shopURL string) templ.Component {
+func ResetCredentialsDisplay(id int, err string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -363,46 +363,98 @@ func ShopURLDisplay(id int, shopURL string) templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div x-data=\"{ editing: false }\" style=\"margin-top:8px;padding-top:8px;border-top:1px solid var(--border)\"><template x-if=\"!editing\"><div style=\"display:flex;align-items:center;gap:8px\"><span class=\"mono\" style=\"font-size:12px;color:var(--muted)\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div id=\"reset-credentials-{ fmt.Sprint(id) }\" style=\"margin-top:16px;padding-top:16px;border-top:1px solid var(--border)\"><div x-data=\"{ open: false }\"><button type=\"button\" @click=\"open = true\" class=\"btn btn-ghost\" style=\"font-size:11px;display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:4px;border:1px solid rgba(230,115,115,.3);background:transparent;color:var(--destructive);cursor:pointer\"><svg width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M12 9v4M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg> Reset Credentials</button><template x-teleport=\"body\"><div x-show=\"open\" x-cloak class=\"fixed inset-0 z-50 flex items-center justify-center\" style=\"background:rgba(0,0,0,.4)\"><div @click.away=\"open = false\" class=\"card card-pad-lg\" style=\"max-width:400px;width:90%;background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3)\"><div class=\"section-title\" style=\"color:var(--destructive);margin-bottom:8px\">Reset Credentials</div><p class=\"text-sm\" style=\"color:var(--muted);margin-bottom:16px\">This will clear the email and password for this affiliate's admin account. The shop owner will need to re-register. Are you sure?</p><div style=\"display:flex;gap:8px;justify-content:flex-end\"><button type=\"button\" @click=\"open = false\" class=\"btn btn-ghost\" style=\"font-size:12px;padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\">Cancel</button> <button type=\"button\" @click=\"\n\t\t\t\t\t\t\t\tfetch('/affiliate/{ fmt.Sprint(id) }/reset-credentials', {method:'POST'})\n\t\t\t\t\t\t\t\t\t.then(r => r.text())\n\t\t\t\t\t\t\t\t\t.then(html => {\n\t\t\t\t\t\t\t\t\t\tdocument.getElementById('reset-credentials-{ fmt.Sprint(id) }').outerHTML = html;\n\t\t\t\t\t\t\t\t\t\topen = false;\n\t\t\t\t\t\t\t\t\t})\" class=\"btn\" style=\"font-size:12px;padding:8px 16px;border-radius:6px;border:none;background:var(--destructive);color:white;cursor:pointer\">Yes, Reset</button></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var18 string
-		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(shopURL)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 98, Col: 74}
+		if err != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "<p class=\"text-sm mt-3\" style=\"color:var(--destructive)\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var18 string
+			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(err)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 119, Col: 69}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "</p>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "</div></div></template></div></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</span> <button type=\"button\" @click=\"editing = true\" class=\"btn btn-ghost\" style=\"font-size:11px;display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\"><svg width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z\"></path></svg> Edit</button></div></template><template x-if=\"editing\"><form hx-put=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		return nil
+	})
+}
+
+func ShopURLDisplay(id int, shopURL string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
 		}
-		var templ_7745c5c3_Var19 string
-		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/affiliate/%d/shop-url", id))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 106, Col: 59}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var19 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var19 == nil {
+			templ_7745c5c3_Var19 = templ.NopComponent
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\" hx-target=\"this\" hx-swap=\"outerHTML\" style=\"display:flex;align-items:center;gap:6px\"><input type=\"text\" name=\"shop_url\" value=\"")
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div x-data=\"{ editing: false }\" style=\"margin-top:8px;padding-top:8px;border-top:1px solid var(--border)\"><template x-if=\"!editing\"><div style=\"display:flex;align-items:center;gap:8px\"><span class=\"mono\" style=\"font-size:12px;color:var(--muted)\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(shopURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 107, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 132, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" placeholder=\"https://example.com\" style=\"flex:1;font-size:12px;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:var(--font-mono);min-width:200px\"> <button type=\"submit\" style=\"font-size:11px;padding:6px 12px;border-radius:4px;border:none;background:var(--primary);color:var(--primary-fg);cursor:pointer\">Save</button> <button type=\"button\" @click=\"editing = false\" style=\"font-size:11px;padding:6px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\">Cancel</button></form></template></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</span> <button type=\"button\" @click=\"editing = true\" class=\"btn btn-ghost\" style=\"font-size:11px;display:flex;align-items:center;gap:4px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\"><svg width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M17 3a2.828 2.828 0 114 4L7.5 20.5 2 22l1.5-5.5L17 3z\"></path></svg> Edit</button></div></template><template x-if=\"editing\"><form hx-put=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var21 string
+		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/affiliate/%d/shop-url", id))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 140, Col: 59}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "\" hx-target=\"this\" hx-swap=\"outerHTML\" style=\"display:flex;align-items:center;gap:6px\"><input type=\"text\" name=\"shop_url\" value=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var22 string
+		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(shopURL)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 141, Col: 54}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "\" placeholder=\"https://example.com\" style=\"flex:1;font-size:12px;padding:6px 8px;background:var(--surface);border:1px solid var(--border);border-radius:4px;color:var(--fg);font-family:var(--font-mono);min-width:200px\"> <button type=\"submit\" style=\"font-size:11px;padding:6px 12px;border-radius:4px;border:none;background:var(--primary);color:var(--primary-fg);cursor:pointer\">Save</button> <button type=\"button\" @click=\"editing = false\" style=\"font-size:11px;padding:6px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\">Cancel</button></form></template></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

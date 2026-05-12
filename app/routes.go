@@ -68,6 +68,7 @@ func InitializeRoutes(router *chi.Mux) {
 		r.Post("/admins", kit.Handler(handlers.HandleAdmins))
 		r.Get("/affiliate/{id}", kit.Handler(handlers.HandleAffiliateDashboard))
 		r.Put("/affiliate/{id}/shop-url", kit.Handler(handlers.HandleUpdateDomain))
+		r.Post("/affiliate/{id}/reset-credentials", kit.Handler(handlers.HandleResetCredentials))
 		r.Put("/affiliate/{id}/dashboard-url", kit.Handler(handlers.HandleUpdateDashboardURL))
 		r.Get("/affiliate/{id}/ping", kit.Handler(handlers.HandlePing))
 	})

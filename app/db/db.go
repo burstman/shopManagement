@@ -224,6 +224,17 @@ func UpdateAffiliateDashboardURL(id int, url string) error {
 	return nil
 }
 
+func DeleteAffiliateCredentials(id int) error {
+	_, err := pool.Exec(context.Background(),
+		"UPDATE affiliates SET email = NULL, password_hash = NULL WHERE id = $1 AND active = true",
+		id,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to reset credentials for affiliate %d: %w", id, err)
+	}
+	return nil
+}
+
 func GetAffiliates() ([]Affiliate, error) {
 	rows, err := pool.Query(context.Background(),
 		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
