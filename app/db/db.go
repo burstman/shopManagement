@@ -243,6 +243,8 @@ func DeleteAffiliateCredentials(id int) error {
 
 	if email != "" {
 		_, _ = pool.Exec(context.Background(),
+			"DELETE FROM sessions WHERE user_id = (SELECT id FROM users WHERE email = $1)", email)
+		_, _ = pool.Exec(context.Background(),
 			"DELETE FROM users WHERE email = $1", email)
 	}
 
