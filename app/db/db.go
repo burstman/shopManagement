@@ -234,7 +234,7 @@ func DeleteAffiliateCredentials(id int) error {
 	}
 
 	_, err = pool.Exec(context.Background(),
-		"UPDATE affiliates SET name = NULL, email = NULL, password_hash = NULL WHERE id = $1 AND active = true",
+		"UPDATE affiliates SET name = NULL, password_hash = NULL WHERE id = $1 AND active = true",
 		id,
 	)
 	if err != nil {
