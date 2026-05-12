@@ -363,14 +363,14 @@ func ResetCredentialsDisplay(id int, err string) templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div id=\"reset-credentials-{ fmt.Sprint(id) }\" style=\"margin-top:16px;padding-top:16px;border-top:1px solid var(--border)\"><div x-data=\"{ open: false }\"><button type=\"button\" @click=\"open = true\" class=\"btn btn-ghost\" style=\"font-size:11px;display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:4px;border:1px solid rgba(230,115,115,.3);background:transparent;color:var(--destructive);cursor:pointer\"><svg width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M12 9v4M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg> Reset Credentials</button><div x-show=\"open\" x-cloak class=\"fixed inset-0 z-50 flex items-center justify-center\" style=\"background:rgba(0,0,0,.4)\"><div @click.away=\"open = false\" class=\"card card-pad-lg\" style=\"max-width:400px;width:90%;background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3)\"><div class=\"section-title\" style=\"color:var(--destructive);margin-bottom:8px\">Reset Credentials</div><p class=\"text-sm\" style=\"color:var(--muted);margin-bottom:16px\">This will clear the email and password for this affiliate's admin account. The shop owner will need to re-register. Are you sure?</p><div style=\"display:flex;gap:8px;justify-content:flex-end\"><button type=\"button\" @click=\"open = false\" class=\"btn btn-ghost\" style=\"font-size:12px;padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\">Cancel</button> <button type=\"button\" hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "<div id=\"reset-credentials-{ fmt.Sprint(id) }\"><div x-data=\"{ open: false }\"><button type=\"button\" @click=\"open = true\" class=\"btn btn-ghost\" style=\"margin-top:8px;font-size:11px;display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:4px;border:1px solid rgba(230,115,115,.3);background:transparent;color:var(--destructive);cursor:pointer\"><svg width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M12 9v4M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg> Reset Credentials</button><div x-show=\"open\" x-cloak class=\"fixed inset-0 z-50 flex items-center justify-center\" style=\"background:rgba(0,0,0,.4)\"><div @click.away=\"open = false\" class=\"card card-pad-lg\" style=\"max-width:400px;width:90%;background:var(--bg);border:1px solid var(--border);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.3)\"><div class=\"section-title\" style=\"color:var(--destructive);margin-bottom:8px\">Reset Credentials</div><p class=\"text-sm\" style=\"color:var(--muted);margin-bottom:16px\">This will clear the name, email, password, and user role for this affiliate's admin account. The shop owner will need to re-register. Are you sure?</p><div style=\"display:flex;gap:8px;justify-content:flex-end\"><button type=\"button\" @click=\"open = false\" class=\"btn btn-ghost\" style=\"font-size:12px;padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\">Cancel</button> <button type=\"button\" @click=\"open = false\" hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/affiliate/%d/reset-credentials", id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 107, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 108, Col: 67}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 		if templ_7745c5c3_Err != nil {
@@ -383,7 +383,7 @@ func ResetCredentialsDisplay(id int, err string) templ.Component {
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#reset-credentials-%d", id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 107, Col: 143}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 109, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -401,7 +401,7 @@ func ResetCredentialsDisplay(id int, err string) templ.Component {
 			var templ_7745c5c3_Var20 string
 			templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(err)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 112, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 117, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 			if templ_7745c5c3_Err != nil {
@@ -448,7 +448,7 @@ func ShopURLDisplay(id int, shopURL string) templ.Component {
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.JoinStringErrs(shopURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 124, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 129, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var22))
 		if templ_7745c5c3_Err != nil {
@@ -461,7 +461,7 @@ func ShopURLDisplay(id int, shopURL string) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/affiliate/%d/shop-url", id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 132, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 137, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -474,7 +474,7 @@ func ShopURLDisplay(id int, shopURL string) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(shopURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 133, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 138, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
