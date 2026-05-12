@@ -225,13 +225,27 @@ func UpdateAffiliateDashboardURL(id int, url string) error {
 }
 
 func DeleteAffiliateCredentials(id int) error {
-	_, err := pool.Exec(context.Background(),
-		"UPDATE affiliates SET email = NULL, password_hash = NULL WHERE id = $1 AND active = true",
+	var email string
+	err := pool.QueryRow(context.Background(),
+		"SELECT COALESCE(email, '') FROM affiliates WHERE id = $1 AND active = true", id,
+	).Scan(&email)
+	if err != nil {
+		return fmt.Errorf("failed to look up affiliate %d: %w", id, err)
+	}
+
+	_, err = pool.Exec(context.Background(),
+		"UPDATE affiliates SET name = NULL, email = NULL, password_hash = NULL WHERE id = $1 AND active = true",
 		id,
 	)
 	if err != nil {
 		return fmt.Errorf("failed to reset credentials for affiliate %d: %w", id, err)
 	}
+
+	if email != "" {
+		_, _ = pool.Exec(context.Background(),
+			"DELETE FROM users WHERE email = $1", email)
+	}
+
 	return nil
 }
 
