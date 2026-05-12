@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"shopDashboard/app/config"
 	"time"
 
@@ -232,6 +233,7 @@ func DeleteAffiliateCredentials(id int) error {
 	if err != nil {
 		return fmt.Errorf("failed to look up affiliate %d: %w", id, err)
 	}
+	log.Printf("[DEBUG] DeleteAffiliateCredentials(%d): found email=%q", id, email)
 
 	_, err = pool.Exec(context.Background(),
 		"UPDATE affiliates SET name = NULL, password_hash = NULL WHERE id = $1 AND active = true",
@@ -240,12 +242,26 @@ func DeleteAffiliateCredentials(id int) error {
 	if err != nil {
 		return fmt.Errorf("failed to reset credentials for affiliate %d: %w", id, err)
 	}
+	log.Printf("[DEBUG] DeleteAffiliateCredentials(%d): cleared name and password_hash", id)
 
 	if email != "" {
-		_, _ = pool.Exec(context.Background(),
+		result, err := pool.Exec(context.Background(),
 			"DELETE FROM sessions WHERE user_id = (SELECT id FROM users WHERE email = $1)", email)
-		_, _ = pool.Exec(context.Background(),
+		if err != nil {
+			log.Printf("[DEBUG] DeleteAffiliateCredentials(%d): sessions delete error: %v", id, err)
+		} else {
+			log.Printf("[DEBUG] DeleteAffiliateCredentials(%d): deleted %d sessions", id, result.RowsAffected())
+		}
+
+		result, err = pool.Exec(context.Background(),
 			"DELETE FROM users WHERE email = $1", email)
+		if err != nil {
+			log.Printf("[DEBUG] DeleteAffiliateCredentials(%d): users delete error: %v", id, err)
+		} else {
+			log.Printf("[DEBUG] DeleteAffiliateCredentials(%d): deleted %d users", id, result.RowsAffected())
+		}
+	} else {
+		log.Printf("[DEBUG] DeleteAffiliateCredentials(%d): email is empty, skipping user delete", id)
 	}
 
 	return nil
