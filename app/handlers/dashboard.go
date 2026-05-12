@@ -128,7 +128,11 @@ func HandleAffiliateDashboard(kit *kit.Kit) error {
 	if kit.Request.Header.Get("HX-Request") == "true" {
 		return kit.Render(dashboard.Index(data))
 	}
-	return kit.Render(layouts.Base("Shop Dashboard - "+affiliate.Name, dashboard.Index(data)))
+	name := ""
+	if affiliate.Name != nil {
+		name = *affiliate.Name
+	}
+	return kit.Render(layouts.Base("Shop Dashboard - "+name, dashboard.Index(data)))
 }
 
 func HandleUpdateDomain(kit *kit.Kit) error {

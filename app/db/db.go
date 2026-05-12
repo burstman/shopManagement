@@ -125,8 +125,8 @@ func AutoMigrate() error {
 type Affiliate struct {
 	ID           int
 	AffiliateID  string
-	Name         string
-	Email        string
+	Name         *string
+	Email        *string
 	ShopURL      string
 	Rate         float64
 	APIKey       string

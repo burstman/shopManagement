@@ -54,9 +54,9 @@ func Index(data PageData) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var2 string
-			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s (%s)", data.Affiliate.Name, data.Affiliate.AffiliateID))
+			templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%s (%s)", strVal(data.Affiliate.Name), data.Affiliate.AffiliateID))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/index.templ`, Line: 28, Col: 139}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/index.templ`, Line: 28, Col: 147}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
 			if templ_7745c5c3_Err != nil {
