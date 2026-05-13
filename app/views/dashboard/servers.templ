@@ -92,7 +92,7 @@ templ DashboardURLDisplay(id int, url string) {
 }
 
 templ ResetCredentialsDisplay(id int, err string) {
-	<div id="reset-credentials-{ fmt.Sprint(id) }">
+	<div id={ fmt.Sprintf("reset-credentials-%d", id) }>
 		<div x-data="{ open: false }">
 			<button type="button" @click="open = true" class="btn btn-ghost" style="margin-top:8px;font-size:11px;display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:4px;border:1px solid rgba(230,115,115,.3);background:transparent;color:var(--destructive);cursor:pointer">
 				<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
