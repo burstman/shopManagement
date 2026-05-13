@@ -278,9 +278,10 @@ thead { background: var(--secondary); }
 .bar-stacked { display: flex; gap: 2px; }
 .bar-stacked > div { height: 100%; border-radius: 999px; }
 
-/* Modal */
-.modal-overlay { display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background: rgba(0,0,0,.4); }
-.modal-overlay--active { display: flex; }
+/* Positioning */
+.fixed { position: fixed; }
+.inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+.z-50 { z-index: 50; }
 
 /* Responsive */
 @media (max-width: 900px) {
