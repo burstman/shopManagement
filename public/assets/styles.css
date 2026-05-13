@@ -278,6 +278,10 @@ thead { background: var(--secondary); }
 .bar-stacked { display: flex; gap: 2px; }
 .bar-stacked > div { height: 100%; border-radius: 999px; }
 
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; z-index: 50; align-items: center; justify-content: center; background: rgba(0,0,0,.4); }
+.modal-overlay--active { display: flex; }
+
 /* Responsive */
 @media (max-width: 900px) {
   .sidebar { width: 80px; }
