@@ -376,14 +376,14 @@ func ResetCredentialsDisplay(id int, err string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\"><div x-data=\"{ open: false }\"><button type=\"button\" @click=\"open = true\" class=\"btn btn-ghost\" style=\"margin-top:8px;font-size:11px;display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:4px;border:1px solid rgba(230,115,115,.3);background:transparent;color:var(--destructive);cursor:pointer\"><svg width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M12 9v4M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg> Reset Credentials</button><div x-show=\"open\" x-cloak class=\"fixed inset-0 z-50 flex items-center justify-center\" style=\"background:rgba(0,0,0,.6)\"><div @click.away=\"open = false\" class=\"card card-pad-lg\" style=\"max-width:400px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.5)\"><div class=\"section-title\" style=\"color:var(--destructive);margin-bottom:8px\">Reset Credentials</div><p class=\"text-sm\" style=\"color:var(--muted);margin-bottom:16px\">This will clear the name, email, password, and user role for this affiliate's admin account. The shop owner will need to re-register. Are you sure?</p><div style=\"display:flex;gap:8px;justify-content:flex-end\"><button type=\"button\" @click=\"open = false\" class=\"btn btn-ghost\" style=\"font-size:12px;padding:8px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer\">Cancel</button> <button type=\"button\" @click=\"open = false\" hx-post=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "\" style=\"margin-top:16px;padding-top:16px;border-top:1px solid var(--border)\"><button type=\"button\" hx-post=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/affiliate/%d/reset-credentials", id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 108, Col: 67}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 97, Col: 63}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 		if templ_7745c5c3_Err != nil {
@@ -396,25 +396,25 @@ func ResetCredentialsDisplay(id int, err string) templ.Component {
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("#reset-credentials-%d", id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 109, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 98, Col: 55}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" hx-swap=\"outerHTML\" class=\"btn\" style=\"font-size:12px;padding:8px 16px;border-radius:6px;border:none;background:var(--destructive);color:white;cursor:pointer\">Yes, Reset</button></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "\" hx-swap=\"outerHTML\" hx-confirm=\"This will clear the name, email, password, and user role for this affiliate's admin account. The shop owner will need to re-register. Are you sure?\" class=\"btn btn-ghost\" style=\"font-size:11px;display:flex;align-items:center;gap:4px;padding:6px 12px;border-radius:4px;border:1px solid rgba(230,115,115,.3);background:transparent;color:var(--destructive);cursor:pointer\"><svg width=\"12\" height=\"12\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" viewBox=\"0 0 24 24\"><path d=\"M12 9v4M12 17h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z\"></path></svg> Reset Credentials</button> ")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		if err != "" {
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<p class=\"text-sm mt-3\" style=\"color:var(--destructive)\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<p style=\"font-size:12px;margin-top:8px;color:var(--destructive)\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 			var templ_7745c5c3_Var21 string
 			templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(err)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 117, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 107, Col: 74}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 			if templ_7745c5c3_Err != nil {
@@ -425,7 +425,7 @@ func ResetCredentialsDisplay(id int, err string) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div></div></div></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -461,7 +461,7 @@ func ShopURLDisplay(id int, shopURL string) templ.Component {
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.JoinStringErrs(shopURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 129, Col: 74}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 116, Col: 74}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var23))
 		if templ_7745c5c3_Err != nil {
@@ -474,7 +474,7 @@ func ShopURLDisplay(id int, shopURL string) templ.Component {
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("/affiliate/%d/shop-url", id))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 137, Col: 59}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 124, Col: 59}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
@@ -487,7 +487,7 @@ func ShopURLDisplay(id int, shopURL string) templ.Component {
 		var templ_7745c5c3_Var25 string
 		templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(shopURL)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 138, Col: 54}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `app/views/dashboard/servers.templ`, Line: 125, Col: 54}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 		if templ_7745c5c3_Err != nil {
