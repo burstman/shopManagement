@@ -64,6 +64,12 @@ func AutoMigrate() error {
 	}
 
 	_, err = pool.Exec(context.Background(),
+		`ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS authorized_email TEXT DEFAULT ''`)
+	if err != nil {
+		return fmt.Errorf("failed to add authorized_email column: %w", err)
+	}
+
+	_, err = pool.Exec(context.Background(),
 		`CREATE TABLE IF NOT EXISTS api_errors (
 			id SERIAL PRIMARY KEY,
 			affiliate_id INTEGER NOT NULL REFERENCES affiliates(id),
@@ -124,14 +130,15 @@ func AutoMigrate() error {
 }
 
 type Affiliate struct {
-	ID           int
-	AffiliateID  string
-	Name         *string
-	Email        *string
-	ShopURL      string
-	Rate         float64
-	APIKey       string
-	DashboardURL string
+	ID              int
+	AffiliateID     string
+	Name            *string
+	Email           *string
+	ShopURL         string
+	Rate            float64
+	APIKey          string
+	DashboardURL    string
+	AuthorizedEmail string
 }
 
 type AffiliateError struct {
@@ -180,10 +187,10 @@ func GenerateAndEnsureAPIKey(affiliateID int) (string, error) {
 func GetAffiliate(id int) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
-		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, ''), COALESCE(authorized_email, '')
 		 FROM affiliates WHERE id = $1 AND active = true`,
 		id,
-	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL)
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL, &a.AuthorizedEmail)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get affiliate %d: %w", id, err)
 	}
@@ -193,10 +200,10 @@ func GetAffiliate(id int) (*Affiliate, error) {
 func GetAffiliateByAPIKey(apiKey string) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
-		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, ''), COALESCE(authorized_email, '')
 		 FROM affiliates WHERE api_key = $1 AND active = true`,
 		apiKey,
-	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL)
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL, &a.AuthorizedEmail)
 	if err != nil {
 		return nil, fmt.Errorf("invalid api key: %w", err)
 	}
@@ -221,6 +228,17 @@ func UpdateAffiliateDashboardURL(id int, url string) error {
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update dashboard_url for affiliate %d: %w", id, err)
+	}
+	return nil
+}
+
+func UpdateAffiliateAuthorizedEmail(id int, email string) error {
+	_, err := pool.Exec(context.Background(),
+		"UPDATE affiliates SET authorized_email = $1 WHERE id = $2 AND active = true",
+		email, id,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to update authorized_email for affiliate %d: %w", id, err)
 	}
 	return nil
 }

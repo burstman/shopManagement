@@ -43,9 +43,10 @@ templ Index(data PageData) {
 					</div>
 					<span class="mono" style="font-size:10px;color:var(--muted)">health check</span>
 				</div>
-				@DashboardURLDisplay(data.Affiliate.ID, data.Affiliate.DashboardURL)
-			</div>
-			@ResetCredentialsDisplay(data.Affiliate.ID, "")
+			@DashboardURLDisplay(data.Affiliate.ID, data.Affiliate.DashboardURL)
+		</div>
+		@AuthorizedEmailDisplay(data.Affiliate.ID, data.Affiliate.AuthorizedEmail)
+		@ResetCredentialsDisplay(data.Affiliate.ID, "")
 		}
 
 		if data.Error != "" {

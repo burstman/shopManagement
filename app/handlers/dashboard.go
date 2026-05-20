@@ -274,6 +274,26 @@ func HandleReportWarn(kit *kit.Kit) error {
 	return kit.Render(dashboard.WarnStored(created))
 }
 
+func HandleUpdateAuthorizedEmail(kit *kit.Kit) error {
+	idStr := chi.URLParam(kit.Request, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		kit.Response.WriteHeader(http.StatusBadRequest)
+		return kit.Render(dashboard.AuthorizedEmailDisplay(id, ""))
+	}
+
+	email := kit.Request.FormValue("authorized_email")
+	if err := db.UpdateAffiliateAuthorizedEmail(id, email); err != nil {
+		aff, fetchErr := db.GetAffiliate(id)
+		if fetchErr != nil {
+			return kit.Render(dashboard.AuthorizedEmailDisplay(id, ""))
+		}
+		return kit.Render(dashboard.AuthorizedEmailDisplay(id, aff.AuthorizedEmail))
+	}
+
+	return kit.Render(dashboard.AuthorizedEmailDisplay(id, email))
+}
+
 func HandleResetCredentials(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)

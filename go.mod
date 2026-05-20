@@ -3,7 +3,7 @@ module shopDashboard
 go 1.25.0
 
 require (
-	github.com/a-h/templ v0.3.1001
+	github.com/a-h/templ v0.3.1020
 	github.com/anthdm/superkit v0.0.0-20240701091803-e7f8e0aad3e9
 	github.com/go-chi/chi/v5 v5.2.5
 	github.com/jackc/pgx/v5 v5.9.2
