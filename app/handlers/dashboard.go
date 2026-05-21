@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 	"shopDashboard/app/config"
 	"shopDashboard/app/db"
@@ -28,9 +29,13 @@ func HandlePing(kit *kit.Kit) error {
 		return kit.Render(dashboard.PingDisplay(id, "unreachable", 0))
 	}
 
+	pingURL := aff.ShopURL
+	if !strings.HasPrefix(pingURL, "http://") && !strings.HasPrefix(pingURL, "https://") {
+		pingURL = "https://" + pingURL
+	}
 	client := &http.Client{Timeout: 5 * time.Second}
 	start := time.Now()
-	resp, err := client.Get(aff.ShopURL + "/health")
+	resp, err := client.Get(pingURL + "/health")
 	elapsed := time.Since(start).Milliseconds()
 	if err != nil {
 		return kit.Render(dashboard.PingDisplay(id, "unreachable", elapsed))
