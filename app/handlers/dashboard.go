@@ -260,22 +260,6 @@ func HandleReportWarn(kit *kit.Kit) error {
 	return kit.Render(dashboard.WarnStored(created))
 }
 
-func HandleRegenerateAPIKey(kit *kit.Kit) error {
-	idStr := chi.URLParam(kit.Request, "id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		kit.Response.WriteHeader(http.StatusBadRequest)
-		return kit.Render(dashboard.APIKeyDisplay(id, "", "invalid affiliate ID"))
-	}
-
-	newKey, err := db.RegenerateAPIKey(id)
-	if err != nil {
-		return kit.Render(dashboard.APIKeyDisplay(id, "", err.Error()))
-	}
-
-	return kit.Render(dashboard.APIKeyDisplay(id, newKey, ""))
-}
-
 func HandleUpdateAuthorizedEmail(kit *kit.Kit) error {
 	idStr := chi.URLParam(kit.Request, "id")
 	id, err := strconv.Atoi(idStr)
