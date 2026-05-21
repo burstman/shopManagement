@@ -56,7 +56,6 @@ func InitializeRoutes(router *chi.Mux) {
 		r.Post("/api/error", kit.Handler(handlers.HandleReportError))
 		r.Post("/api/errors", kit.Handler(handlers.HandleReportError))
 		r.Post("/api/warn", kit.Handler(handlers.HandleReportWarn))
-		r.Post("/api/affiliates/register", kit.Handler(handlers.HandleRegisterAffiliate))
 
 		r.Handle("/public/*", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
 	})
