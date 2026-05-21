@@ -72,22 +72,24 @@ templ PingDisplay(id int, status string, latencyMs int64) {
 }
 
 templ AuthorizedEmailDisplay(id int, email string) {
-	<div x-data="{ editing: false }" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
-		<template x-if="!editing">
-			<div style="display:flex;align-items:center;gap:6px">
-				<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted)"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-				<span class="mono" style="font-size:11px;color:var(--muted)">Authorized Email:</span>
-				<span class="mono" style="font-size:11px;color:var(--fg)">{ email }</span>
-				<button type="button" @click="editing = true" class="btn btn-ghost" style="font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Edit</button>
-			</div>
-		</template>
-		<template x-if="editing">
-			<form hx-put={ fmt.Sprintf("/affiliate/%d/authorized-email", id) } hx-target="this" hx-swap="outerHTML" style="display:flex;align-items:center;gap:4px">
-				<input type="email" name="authorized_email" value={ email } placeholder="admin@shop.com" style="font-size:11px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--fg);font-family:var(--font-mono);min-width:180px" />
-				<button type="submit" style="font-size:10px;padding:4px 8px;border-radius:3px;border:none;background:var(--primary);color:var(--primary-fg);cursor:pointer">Save</button>
-				<button type="button" @click="editing = false" style="font-size:10px;padding:4px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Cancel</button>
-			</form>
-		</template>
+	<div id={ fmt.Sprintf("auth-email-%d", id) } style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+		<div style="display:flex;align-items:center;gap:6px">
+			<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted)"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+			<span class="mono" style="font-size:11px;color:var(--muted)">Authorized Email:</span>
+			<span class="mono" style="font-size:11px;color:var(--fg)">
+				if email == "" {
+					<span style="color:var(--muted);font-style:italic">not set</span>
+				} else {
+					{ email }
+				}
+			</span>
+			<button type="button" onclick="this.parentElement.style.display='none';this.parentElement.nextElementSibling.style.display='flex'" class="btn btn-ghost" style="font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Edit</button>
+		</div>
+		<form hx-put={ fmt.Sprintf("/affiliate/%d/authorized-email", id) } hx-target={ fmt.Sprintf("#auth-email-%d", id) } hx-swap="outerHTML" style="display:none;align-items:center;gap:4px">
+			<input type="email" name="authorized_email" value={ email } placeholder="admin@shop.com" style="font-size:11px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--fg);font-family:var(--font-mono);min-width:180px" />
+			<button type="submit" style="font-size:10px;padding:4px 8px;border-radius:3px;border:none;background:var(--primary);color:var(--primary-fg);cursor:pointer">Save</button>
+			<button type="button" onclick="this.parentElement.style.display='none';this.parentElement.previousElementSibling.style.display='flex'" style="font-size:10px;padding:4px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Cancel</button>
+		</form>
 	</div>
 }
 
