@@ -115,6 +115,12 @@ func AutoMigrate() error {
 	}
 
 	_, err = pool.Exec(context.Background(),
+		`CREATE TABLE IF NOT EXISTS config (key TEXT PRIMARY KEY, value TEXT NOT NULL DEFAULT '')`)
+	if err != nil {
+		return fmt.Errorf("failed to create config table: %w", err)
+	}
+
+	_, err = pool.Exec(context.Background(),
 		`CREATE TABLE IF NOT EXISTS super_admins (
 			id SERIAL PRIMARY KEY,
 			name TEXT NOT NULL,
@@ -228,6 +234,38 @@ func UpdateAffiliateDashboardURL(id int, url string) error {
 	)
 	if err != nil {
 		return fmt.Errorf("failed to update dashboard_url for affiliate %d: %w", id, err)
+	}
+	return nil
+}
+
+func GetConfig(key string) (string, error) {
+	var value string
+	err := pool.QueryRow(context.Background(),
+		"SELECT COALESCE(value, '') FROM config WHERE key = $1", key,
+	).Scan(&value)
+	if err != nil {
+		return "", fmt.Errorf("failed to get config %q: %w", key, err)
+	}
+	return value, nil
+}
+
+func SetConfig(key, value string) error {
+	_, err := pool.Exec(context.Background(),
+		`INSERT INTO config (key, value) VALUES ($1, $2)
+		 ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+		key, value,
+	)
+	if err != nil {
+		return fmt.Errorf("failed to set config %q: %w", key, err)
+	}
+	return nil
+}
+
+func UpdateAllAffiliatesDashboardURL(url string) error {
+	_, err := pool.Exec(context.Background(),
+		"UPDATE affiliates SET dashboard_url = $1 WHERE active = true", url)
+	if err != nil {
+		return fmt.Errorf("failed to update all affiliates dashboard_url: %w", err)
 	}
 	return nil
 }

@@ -55,6 +55,19 @@ func HandleServersList(kit *kit.Kit) error {
 			Error: err.Error(),
 		})))
 	}
+
+	existingURL, _ := db.GetConfig("dashboard_url")
+	if existingURL == "" {
+		scheme := "http"
+		if kit.Request.TLS != nil || kit.Request.Header.Get("X-Forwarded-Proto") == "https" {
+			scheme = "https"
+		}
+		autoURL := scheme + "://" + kit.Request.Host
+		if err := db.SetConfig("dashboard_url", autoURL); err == nil {
+			_ = db.UpdateAllAffiliatesDashboardURL(autoURL)
+		}
+	}
+
 	return kit.Render(layouts.Base("Shop Servers", dashboard.ServersList(dashboard.ServersPageData{
 		Servers: affiliates,
 	})))
@@ -87,16 +100,6 @@ func HandleAffiliateDashboard(kit *kit.Kit) error {
 		})))
 	}
 	affiliate.APIKey = apiKey
-
-	if affiliate.DashboardURL == "" {
-		scheme := "http"
-		if kit.Request.TLS != nil || kit.Request.Header.Get("X-Forwarded-Proto") == "https" {
-			scheme = "https"
-		}
-		autoURL := scheme + "://" + kit.Request.Host
-		_ = db.UpdateAffiliateDashboardURL(affiliate.ID, autoURL)
-		affiliate.DashboardURL = autoURL
-	}
 
 	client := services.NewShopClient(affiliate.ID)
 
