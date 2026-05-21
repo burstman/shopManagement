@@ -63,9 +63,7 @@ func HandleServersList(kit *kit.Kit) error {
 			scheme = "https"
 		}
 		autoURL := scheme + "://" + kit.Request.Host
-		if err := db.SetConfig("dashboard_url", autoURL); err == nil {
-			_ = db.UpdateAllAffiliatesDashboardURL(autoURL)
-		}
+		_ = db.SetConfig("dashboard_url", autoURL)
 	}
 
 	return kit.Render(layouts.Base("Shop Servers", dashboard.ServersList(dashboard.ServersPageData{
@@ -161,26 +159,6 @@ func HandleUpdateDomain(kit *kit.Kit) error {
 	}
 
 	return kit.Render(dashboard.ShopURLDisplay(id, shopURL))
-}
-
-func HandleUpdateDashboardURL(kit *kit.Kit) error {
-	idStr := chi.URLParam(kit.Request, "id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		kit.Response.WriteHeader(http.StatusBadRequest)
-		return kit.Render(dashboard.DashboardURLDisplay(id, ""))
-	}
-
-	url := kit.Request.FormValue("dashboard_url")
-	if err := db.UpdateAffiliateDashboardURL(id, url); err != nil {
-		aff, fetchErr := db.GetAffiliate(id)
-		if fetchErr != nil {
-			return kit.Render(dashboard.DashboardURLDisplay(id, ""))
-		}
-		return kit.Render(dashboard.DashboardURLDisplay(id, aff.DashboardURL))
-	}
-
-	return kit.Render(dashboard.DashboardURLDisplay(id, url))
 }
 
 func HandleReportError(kit *kit.Kit) error {

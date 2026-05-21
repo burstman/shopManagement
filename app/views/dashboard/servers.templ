@@ -71,26 +71,6 @@ templ PingDisplay(id int, status string, latencyMs int64) {
 	</div>
 }
 
-templ DashboardURLDisplay(id int, url string) {
-	<div x-data="{ editing: false }" style="display:flex;align-items:center;gap:6px">
-		<template x-if="!editing">
-			<div style="display:flex;align-items:center;gap:6px">
-				<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="color:var(--muted)"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
-				<span class="mono" style="font-size:11px;color:var(--muted)">Dashboard URL:</span>
-				<span class="mono" style="font-size:11px;color:var(--primary)">{ url }</span>
-				<button type="button" @click="editing = true" class="btn btn-ghost" style="font-size:10px;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Edit</button>
-			</div>
-		</template>
-		<template x-if="editing">
-			<form hx-put={ fmt.Sprintf("/affiliate/%d/dashboard-url", id) } hx-target="this" hx-swap="outerHTML" style="display:flex;align-items:center;gap:4px">
-				<input type="text" name="dashboard_url" value={ url } placeholder="https://dashboard.example.com" style="font-size:11px;padding:4px 6px;background:var(--surface);border:1px solid var(--border);border-radius:3px;color:var(--fg);font-family:var(--font-mono);min-width:180px" />
-				<button type="submit" style="font-size:10px;padding:4px 8px;border-radius:3px;border:none;background:var(--primary);color:var(--primary-fg);cursor:pointer">Save</button>
-				<button type="button" @click="editing = false" style="font-size:10px;padding:4px 8px;border-radius:3px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer">Cancel</button>
-			</form>
-		</template>
-	</div>
-}
-
 templ AuthorizedEmailDisplay(id int, email string) {
 	<div x-data="{ editing: false }" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
 		<template x-if="!editing">
