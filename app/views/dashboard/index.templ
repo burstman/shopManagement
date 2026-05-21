@@ -46,6 +46,7 @@ templ Index(data PageData) {
 			@DashboardURLDisplay(data.Affiliate.ID, data.Affiliate.DashboardURL)
 		</div>
 		@AuthorizedEmailDisplay(data.Affiliate.ID, data.Affiliate.AuthorizedEmail)
+		@APIKeyDisplay(data.Affiliate.ID, "", "")
 		@ResetCredentialsDisplay(data.Affiliate.ID, "")
 		}
 

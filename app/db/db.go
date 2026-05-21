@@ -243,6 +243,19 @@ func UpdateAffiliateAuthorizedEmail(id int, email string) error {
 	return nil
 }
 
+func RegenerateAPIKey(affiliateID int) (string, error) {
+	key, err := GenerateAPIKey()
+	if err != nil {
+		return "", err
+	}
+	_, err = pool.Exec(context.Background(),
+		"UPDATE affiliates SET api_key = $1 WHERE id = $2 AND active = true", key, affiliateID)
+	if err != nil {
+		return "", fmt.Errorf("failed to regenerate api_key for affiliate %d: %w", affiliateID, err)
+	}
+	return key, nil
+}
+
 func CreateAffiliate(affiliateID, name, email, shopURL, apiKey, dashboardURL string) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
