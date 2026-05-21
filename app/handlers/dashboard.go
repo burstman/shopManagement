@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"shopDashboard/app/config"
 	"shopDashboard/app/db"
 	"shopDashboard/app/services"
 	"shopDashboard/app/views/dashboard"
@@ -307,4 +308,61 @@ func HandleResetCredentials(kit *kit.Kit) error {
 	}
 
 	return kit.Render(dashboard.ResetCredentialsDisplay(id, ""))
+}
+
+type RegisterRequest struct {
+	AffiliateID string  `json:"affiliate_id"`
+	Name        string  `json:"name"`
+	Email       string  `json:"email"`
+	ShopURL     string  `json:"shop_url"`
+	Rate        float64 `json:"rate"`
+}
+
+type RegisterResponse struct {
+	APIKey       string `json:"api_key"`
+	DashboardURL string `json:"dashboard_url"`
+	AffiliateID  string `json:"affiliate_id"`
+	ID           int    `json:"id"`
+}
+
+func HandleRegisterAffiliate(kit *kit.Kit) error {
+	secret := config.Get().RegistrationSecret
+	if secret != "" {
+		auth := kit.Request.Header.Get("Authorization")
+		if auth != "Bearer "+secret {
+			return kit.JSON(http.StatusUnauthorized, map[string]string{"error": "invalid registration secret"})
+		}
+	}
+
+	var req RegisterRequest
+	if err := json.NewDecoder(kit.Request.Body).Decode(&req); err != nil {
+		return kit.JSON(http.StatusBadRequest, map[string]string{"error": "invalid JSON body"})
+	}
+
+	if req.AffiliateID == "" || req.ShopURL == "" {
+		return kit.JSON(http.StatusBadRequest, map[string]string{"error": "affiliate_id and shop_url are required"})
+	}
+
+	apiKey, err := db.GenerateAPIKey()
+	if err != nil {
+		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": "failed to generate api key"})
+	}
+
+	scheme := "https"
+	if kit.Request.TLS == nil {
+		scheme = "http"
+	}
+	dashboardURL := fmt.Sprintf("%s://%s", scheme, kit.Request.Host)
+
+	aff, err := db.CreateAffiliate(req.AffiliateID, req.Name, req.Email, req.ShopURL, apiKey, dashboardURL)
+	if err != nil {
+		return kit.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	return kit.JSON(http.StatusOK, RegisterResponse{
+		APIKey:       aff.APIKey,
+		DashboardURL: aff.DashboardURL,
+		AffiliateID:  aff.AffiliateID,
+		ID:           aff.ID,
+	})
 }

@@ -3,14 +3,15 @@ package config
 import "os"
 
 type Config struct {
-	ListenAddr    string
-	DBHost        string
-	DBPort        string
-	DBUser        string
-	DBPassword    string
-	DBName        string
-	DBDriver      string
-	DatabaseURL   string
+	ListenAddr         string
+	DBHost             string
+	DBPort             string
+	DBUser             string
+	DBPassword         string
+	DBName             string
+	DBDriver           string
+	DatabaseURL        string
+	RegistrationSecret string
 }
 
 func Get() *Config {
@@ -20,14 +21,15 @@ func Get() *Config {
 	}
 
 	cfg := &Config{
-		ListenAddr:    ":" + port,
-		DatabaseURL:   os.Getenv("DATABASE_URL"),
-		DBDriver:      os.Getenv("DB_DRIVER"),
-		DBHost:        os.Getenv("DB_HOST"),
-		DBPort:        os.Getenv("DB_PORT"),
-		DBUser:        os.Getenv("DB_USER"),
-		DBPassword:    os.Getenv("DB_PASSWORD"),
-		DBName:        os.Getenv("DB_NAME"),
+		ListenAddr:         ":" + port,
+		DatabaseURL:        os.Getenv("DATABASE_URL"),
+		DBDriver:           os.Getenv("DB_DRIVER"),
+		DBHost:             os.Getenv("DB_HOST"),
+		DBPort:             os.Getenv("DB_PORT"),
+		DBUser:             os.Getenv("DB_USER"),
+		DBPassword:         os.Getenv("DB_PASSWORD"),
+		DBName:             os.Getenv("DB_NAME"),
+		RegistrationSecret: os.Getenv("REGISTRATION_SECRET"),
 	}
 
 	return cfg

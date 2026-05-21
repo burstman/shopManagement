@@ -243,6 +243,20 @@ func UpdateAffiliateAuthorizedEmail(id int, email string) error {
 	return nil
 }
 
+func CreateAffiliate(affiliateID, name, email, shopURL, apiKey, dashboardURL string) (*Affiliate, error) {
+	var a Affiliate
+	err := pool.QueryRow(context.Background(),
+		`INSERT INTO affiliates (affiliate_id, name, email, shop_url, rate, api_key, dashboard_url, active)
+		 VALUES ($1, $2, $3, $4, 0, $5, $6, true)
+		 RETURNING id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(dashboard_url, ''), COALESCE(authorized_email, '')`,
+		affiliateID, name, email, shopURL, apiKey, dashboardURL,
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.DashboardURL, &a.AuthorizedEmail)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create affiliate: %w", err)
+	}
+	return &a, nil
+}
+
 func DeleteAffiliateCredentials(id int) error {
 	var email string
 	err := pool.QueryRow(context.Background(),
