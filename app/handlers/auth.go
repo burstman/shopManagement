@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"net/http"
 	"shopDashboard/app/db"
 	"shopDashboard/app/views/auth"
@@ -12,10 +10,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const defaultPassword = "passwordadmin"
+
 func generatePassword() string {
-	b := make([]byte, 4)
-	rand.Read(b)
-	return hex.EncodeToString(b)
+	return defaultPassword
 }
 
 type AdminAuth struct {
