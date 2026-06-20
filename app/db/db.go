@@ -138,6 +138,7 @@ type Affiliate struct {
 	Rate            float64
 	APIKey          string
 	AuthorizedEmail string
+	ExpiresAt       *time.Time
 }
 
 type AffiliateError struct {
@@ -186,10 +187,10 @@ func GenerateAndEnsureAPIKey(affiliateID int) (string, error) {
 func GetAffiliate(id int) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
-		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, ''), expires_at
 		 FROM affiliates WHERE id = $1 AND active = true`,
 		id,
-	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail)
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail, &a.ExpiresAt)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get affiliate %d: %w", id, err)
 	}
@@ -199,10 +200,10 @@ func GetAffiliate(id int) (*Affiliate, error) {
 func GetAffiliateByAPIKey(apiKey string) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
-		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, ''), expires_at
 		 FROM affiliates WHERE api_key = $1 AND active = true`,
 		apiKey,
-	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail)
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail, &a.ExpiresAt)
 	if err != nil {
 		return nil, fmt.Errorf("invalid api key: %w", err)
 	}
@@ -261,9 +262,9 @@ func CreateAffiliate(affiliateID, name, email, shopURL, apiKey string) (*Affilia
 	err := pool.QueryRow(context.Background(),
 		`INSERT INTO affiliates (affiliate_id, name, email, shop_url, rate, api_key, active)
 		 VALUES ($1, $2, $3, $4, 0, $5, true)
-		 RETURNING id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, '')`,
+		 RETURNING id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, ''), expires_at`,
 		affiliateID, name, email, shopURL, apiKey,
-	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail)
+	).Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail, &a.ExpiresAt)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create affiliate: %w", err)
 	}
@@ -314,7 +315,7 @@ func DeleteAffiliateCredentials(id int) error {
 
 func GetAffiliates() ([]Affiliate, error) {
 	rows, err := pool.Query(context.Background(),
-		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, '')
+		`SELECT id, affiliate_id, name, email, shop_url, rate, COALESCE(api_key, ''), COALESCE(authorized_email, ''), expires_at
 		 FROM affiliates WHERE active = true
 		 ORDER BY id`)
 	if err != nil {
@@ -325,7 +326,7 @@ func GetAffiliates() ([]Affiliate, error) {
 	var affiliates []Affiliate
 	for rows.Next() {
 		var a Affiliate
-		if err := rows.Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail); err != nil {
+		if err := rows.Scan(&a.ID, &a.AffiliateID, &a.Name, &a.Email, &a.ShopURL, &a.Rate, &a.APIKey, &a.AuthorizedEmail, &a.ExpiresAt); err != nil {
 			return nil, fmt.Errorf("failed to scan affiliate: %w", err)
 		}
 		affiliates = append(affiliates, a)
