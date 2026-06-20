@@ -105,18 +105,9 @@ func HandleAffiliateDashboard(kit *kit.Kit) error {
 		Affiliate: affiliate,
 	}
 
-	orders, err := client.FetchOrders()
-	if err != nil {
-		data.Error = err.Error()
-	} else {
-		data.Orders = orders
-	}
-
 	comm, err := client.FetchCommission()
 	if err != nil {
-		if data.Error == "" {
-			data.Error = err.Error()
-		}
+		data.Error = err.Error()
 	} else {
 		data.Commission = comm
 	}
@@ -278,6 +269,41 @@ func HandleUpdateAuthorizedEmail(kit *kit.Kit) error {
 	}
 
 	return kit.Render(dashboard.AuthorizedEmailDisplay(id, email))
+}
+
+func HandleExtendSubscription(kit *kit.Kit) error {
+	idStr := chi.URLParam(kit.Request, "id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		kit.Response.WriteHeader(http.StatusBadRequest)
+		kit.Response.Write([]byte("invalid affiliate ID"))
+		return nil
+	}
+
+	daysStr := kit.Request.FormValue("days")
+	if daysStr == "" {
+		kit.Response.WriteHeader(http.StatusBadRequest)
+		kit.Response.Write([]byte("missing days"))
+		return nil
+	}
+
+	days, err := strconv.Atoi(daysStr)
+	if err != nil || days <= 0 {
+		kit.Response.WriteHeader(http.StatusBadRequest)
+		kit.Response.Write([]byte("days must be a positive integer"))
+		return nil
+	}
+
+	newExpiry, err := db.ExtendAffiliateSubscription(id, days, time.Now())
+	if err != nil {
+		kit.Response.WriteHeader(http.StatusInternalServerError)
+		kit.Response.Write([]byte("failed to extend subscription"))
+		return nil
+	}
+
+	kit.Response.Header().Set("Content-Type", "text/html")
+	kit.Response.Write([]byte(`<div style="padding:8px 12px;background:var(--primary-soft);color:var(--primary);border-radius:8px;font-size:13px;font-weight:500;border:1px solid var(--primary-border)">Subscription extended by ` + strconv.Itoa(days) + ` days — expires ` + newExpiry.Format("Jan 02, 2006") + `</div>`))
+	return nil
 }
 
 func HandleResetCredentials(kit *kit.Kit) error {

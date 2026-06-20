@@ -263,6 +263,32 @@ func UpdateAffiliateAuthorizedEmail(id int, email string) error {
 
 
 
+func ExtendAffiliateSubscription(id int, days int, now time.Time) (time.Time, error) {
+	var currentExpiry *time.Time
+	err := pool.QueryRow(context.Background(),
+		"SELECT expires_at FROM affiliates WHERE id = $1 AND active = true", id,
+	).Scan(&currentExpiry)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to get affiliate %d: %w", id, err)
+	}
+
+	var newExpiry time.Time
+	if currentExpiry != nil && currentExpiry.After(now) {
+		newExpiry = currentExpiry.AddDate(0, 0, days)
+	} else {
+		newExpiry = now.AddDate(0, 0, days)
+	}
+
+	_, err = pool.Exec(context.Background(),
+		"UPDATE affiliates SET expires_at = $1 WHERE id = $2 AND active = true",
+		newExpiry, id,
+	)
+	if err != nil {
+		return time.Time{}, fmt.Errorf("failed to extend subscription for affiliate %d: %w", id, err)
+	}
+	return newExpiry, nil
+}
+
 func CreateAffiliate(affiliateID, name, email, shopURL, apiKey string) (*Affiliate, error) {
 	var a Affiliate
 	err := pool.QueryRow(context.Background(),
