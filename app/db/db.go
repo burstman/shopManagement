@@ -64,6 +64,12 @@ func AutoMigrate() error {
 	}
 
 	_, err = pool.Exec(context.Background(),
+		`ALTER TABLE affiliates ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP`)
+	if err != nil {
+		return fmt.Errorf("failed to add expires_at column: %w", err)
+	}
+
+	_, err = pool.Exec(context.Background(),
 		`CREATE TABLE IF NOT EXISTS api_errors (
 			id SERIAL PRIMARY KEY,
 			affiliate_id INTEGER NOT NULL REFERENCES affiliates(id),
